@@ -4,15 +4,18 @@ import ChartOne from '../../components/Charts/ChartOne';
 import ChartThree from '../../components/Charts/ChartThree';
 import DefaultLayout from '../../layout/DefaultLayout';
 import useAxios from '../../hooks/useAxios';
+import { useTranslation } from 'react-i18next';
+import convertNumberFormat from '../../utils/ConvertNum';
 
 const ECommerce: React.FC = () => {
 
+  const { t ,i18n} = useTranslation();
 
-  function formatNumber(value) {
-    const numericValue = parseInt(value, 10);
-    const formattedNumber = new Intl.NumberFormat('en-US').format(numericValue);
-    return formattedNumber;
-  }
+  // function formatNumber(value) {
+  //   const numericValue = parseInt(value, 10);
+  //   const formattedNumber = new Intl.NumberFormat('en-US').format(numericValue);
+  //   return formattedNumber;
+  // }
 
   const { get, response, error, loading } = useAxios();
   const { get:getProducts, response:responseProducts, error:errorProducts, loading:loadingProducts } = useAxios();
@@ -26,7 +29,7 @@ const ECommerce: React.FC = () => {
   return (
     <DefaultLayout>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
-        <CardDataStats title="Total views" total="3.456K" rate="0.43%" levelUp>
+        <CardDataStats title={t("Total views")} total={`${convertNumberFormat(453,i18n.language)}K`} rate="0.43%" levelUp>
           <svg
             className="fill-primary dark:fill-white"
             width="22"
@@ -45,7 +48,7 @@ const ECommerce: React.FC = () => {
             />
           </svg>
         </CardDataStats>
-        <CardDataStats title="Total Profit" total={`$${responseTotalSale?.totalSale}`} rate="4.35%" levelUp>
+        <CardDataStats title={t("Total Profit")} total={`$${convertNumberFormat(responseTotalSale?.totalSale,i18n.language)}`} rate="4.35%" levelUp>
           <svg
             className="fill-primary dark:fill-white"
             width="20"
@@ -68,7 +71,7 @@ const ECommerce: React.FC = () => {
             />
           </svg>
         </CardDataStats>
-        <CardDataStats title="Total Product" total={formatNumber(responseProducts?.totalItems)} rate="2.59%" levelUp>
+        <CardDataStats title={t("Total Product")} total={convertNumberFormat(responseProducts?.totalItems,i18n.language)} rate="2.59%" levelUp>
           <svg
             className="fill-primary dark:fill-white"
             width="22"
@@ -87,7 +90,7 @@ const ECommerce: React.FC = () => {
             />
           </svg>
         </CardDataStats>
-        <CardDataStats title="Total Users" total={formatNumber(response?.totalItems)} rate="0.95%" levelDown>
+        <CardDataStats title={t("Total Users")} total={convertNumberFormat(response?.totalItems,i18n.language)} rate="0.95%" levelDown>
           <svg
             className="fill-primary dark:fill-white"
             width="22"

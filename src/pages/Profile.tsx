@@ -4,14 +4,16 @@ import CoverOne from '../images/cover/cover-01.png';
 import userSix from '../images/user/user-06.png';
 import { Link } from 'react-router-dom';
 import { useResponse } from '../ResponseContext';
+import { useTranslation } from 'react-i18next';
 
 const Profile = () => {
 
-  const { response, setResponse } = useResponse();
+    const { t } = useTranslation();
+    const { response, setResponse } = useResponse();
 
   return (
     <DefaultLayout>
-      <Breadcrumb pageName="Profile" />
+      <Breadcrumb pageName={t("Profile")} />
 
       <div className="overflow-hidden rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="relative z-20 h-35 md:h-65">
@@ -34,7 +36,7 @@ const Profile = () => {
               {response?.user.username}
             </h3>
             <p className="font-medium">{response?.user.role}</p>
-            <div className="mx-auto mt-4.5 mb-5.5 grid max-w-94 grid-cols-3 rounded-md border border-stroke py-2.5 shadow-1 dark:border-strokedark dark:bg-[#37404F]">
+            {/* <div className="mx-auto mt-4.5 mb-5.5 grid max-w-94 grid-cols-3 rounded-md border border-stroke py-2.5 shadow-1 dark:border-strokedark dark:bg-[#37404F]">
               <div className="flex flex-col items-center justify-center gap-1 border-r border-stroke px-4 dark:border-strokedark xsm:flex-row">
                 <span className="font-semibold text-black dark:text-white">
                   259
@@ -219,7 +221,7 @@ const Profile = () => {
                   </svg>
                 </Link>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

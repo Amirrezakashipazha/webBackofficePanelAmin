@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import useAxios from '../../hooks/useAxios';
+import { useTranslation } from 'react-i18next';
 
 const SelectStatus = ({ status, id ,table,onStatusChangeSuccess }) => {
     // Set an initial state value for `selectedOptionStatus`
 
+    const { t } = useTranslation();
     const { patch, response, error, loading } = useAxios();
 
     const [selectedOptionStatus, setSelectedOptionStatus] = useState('in progress'); // Default to 'in progress'
@@ -33,13 +35,13 @@ const SelectStatus = ({ status, id ,table,onStatusChangeSuccess }) => {
             }
         >
             <option value="in progress" className="text-warning">
-                in progress
+                {t("in progress")}
             </option>
             <option value="delivered" className="text-success">
-                delivered
+                {t("delivered")}
             </option>
             <option value="canceled" className="text-danger">
-                canceled
+                {t("canceled")}
             </option>
         </select>
     );

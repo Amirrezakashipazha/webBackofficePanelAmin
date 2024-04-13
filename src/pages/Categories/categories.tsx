@@ -5,9 +5,12 @@ import { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
 import useAxios from '../../hooks/useAxios';
 import { Pagination } from 'flowbite-react';
+import { useTranslation } from 'react-i18next';
+import convertNumberFormat from '../../utils/ConvertNum';
 
 
 const Categories = () => {
+    const { t, i18n } = useTranslation();
     const [selectedOption, setSelectedOption] = useState<number>(5);
     const [isOptionSelected, setIsOptionSelected] = useState<boolean>(false);
 
@@ -51,19 +54,20 @@ const Categories = () => {
 
     const HandleDelteUser = async (id: number) => {
         Swal.fire({
-            title: 'Are you sure?',
-            text: "You won't be able to revert this!",
+            title: t('Are you sure?'),
+            text: t("You won't be able to revert this!"),
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, delete it!'
+            confirmButtonText: t('Yes, delete it!'),
+            cancelButtonText:t("Cancel")
         }).then((result) => {
             if (result.isConfirmed) {
                 if (id === 1) {
                     Swal.fire(
-                        'Failed!',
-                        'not allowed',
+                        t('Failed!'),
+                        t('not allowed'),
                         'error'
                     )
                     return true
@@ -72,15 +76,15 @@ const Categories = () => {
                     setDeleted(!deleted);
                     console.log(res);
                     Swal.fire(
-                        'Deleted!',
-                        'Your file has been deleted.',
+                        t('Deleted!'),
+                        t('Your file has been deleted.'),
                         'success'
                     )
                 }).catch((error) => {
                     console.error("Error deleting user:", error);
                     Swal.fire(
-                        'Failed!',
-                        'There was an error deleting the user.',
+                        t('Failed!'),
+                        t('There was an error deleting the user.'),
                         'error'
                     )
                 });
@@ -96,18 +100,18 @@ const Categories = () => {
 
 
 
-    if (loading) 
-    return (
-        <DefaultLayout>
-            <p>Loading...</p>
-        </DefaultLayout>
-    );
-        
+    if (loading)
+        return (
+            <DefaultLayout>
+                <p>Loading...</p>
+            </DefaultLayout>
+        );
+
     if (error) return <p>Error: {error}</p>;
 
     return (
         <DefaultLayout>
-            <Breadcrumb pageName="Categories" />
+            <Breadcrumb pageName={t("Categories")} />
 
             <div className="flex flex-col gap-10">
 
@@ -118,7 +122,7 @@ const Categories = () => {
                             to="/categories/create"
                             className="inline-flex items-center justify-center rounded-full bg-primary py-3 px-5 text-center font-medium text-white hover:bg-opacity-90 lg:px-6 xl:px-8"
                         >
-                            Create
+                            {t("Create")}
                         </Link>
                     </div>
                     <div className="max-w-full">
@@ -128,17 +132,17 @@ const Categories = () => {
                             <table className="w-full table-auto">
                                 <thead>
                                     <tr className="bg-gray-2 text-left dark:bg-meta-4">
-                                        <th className="text-nowrap min-w-[220px] py-4 pl-7 px-4 font-medium text-black dark:text-white">
-                                            Name
+                                        <th className={`${i18n.language === "fa" ? "text-start pl-4 pr-9" : "pr-4 pl-9"} min-w-[220px] py-4 font-medium text-black dark:text-white xl:pl-11`}>
+                                            {t("Name")}
                                         </th>
-                                        <th className="text-nowrap min-w-[150px] py-4 px-4 font-medium text-black dark:text-white">
-                                            Description
+                                        <th className={`${i18n.language === "fa" && "text-start"} min-w-[150px] py-4 px-4 font-medium text-black dark:text-white`}>
+                                            {t("Description")}
                                         </th>
-                                        <th className="text-nowrap py-4 px-4 font-medium text-black dark:text-white">
-                                            Status
+                                        <th className={`${i18n.language === "fa" && "text-start"} min-w-[150px] py-4 px-4 font-medium text-black dark:text-white`}>
+                                            {t("Status")}
                                         </th>
-                                        <th className="text-nowrap py-4 px-4 font-medium text-black dark:text-white">
-                                            Action
+                                        <th className={`${i18n.language === "fa" && "text-start"} min-w-[150px] py-4 px-4 font-medium text-black dark:text-white`}>
+                                            {t("Actions")}
                                         </th>
                                     </tr>
                                 </thead>
@@ -147,8 +151,8 @@ const Categories = () => {
 
                                     {response && response.data.map((product, key) => (
                                         <tr key={key} className='border-b border-[#eee] dark:border-strokedark'>
-                                            <td className="flex items-center py-5 px-4 pl-7 ">
-                                                <div className="flex-shrink-0 w-[58px] h-[58px] mr-3">
+                                            <td className={`flex items-center py-5 px-4 ${i18n.language === "fa" ? "pr-9" : "pl-9"} xl:pl-11`}>
+                                                <div className={`flex-shrink-0 w-[58px] h-[58px] ${i18n.language === "fa" ? "ml-3" : "mr-3"}`}>
                                                     <img src={product.image} alt="Brand" className='w-full h-full rounded-md object-cover' />
                                                 </div>
                                                 <h5 className="font-medium text-black dark:text-white">
@@ -171,11 +175,11 @@ const Categories = () => {
                                                             : 'bg-warning text-warning'
                                                         }`}
                                                 >
-                                                    {product.status}
+                                                    {t(product.status)}
                                                 </p>
                                             </td>
                                             <td className="py-5 px-4">
-                                                <div className="flex items-center space-x-3.5">
+                                                <div className="flex items-center">
                                                     {
                                                         // product.id !== 1 &&
 
@@ -202,7 +206,7 @@ const Categories = () => {
 
                                                         </Link>}
 
-                                                    <button title='delete' className="hover:text-primary" onClick={() => HandleDelteUser(product.id)}>
+                                                    <button title='delete' className="mx-[14px] hover:text-primary" onClick={() => HandleDelteUser(product.id)}>
                                                         <svg
                                                             className="fill-current"
                                                             width="18"
@@ -255,27 +259,26 @@ const Categories = () => {
                                     className={`relative w-[90px] z-20 appearance-none rounded border border-stroke bg-transparent py-2 px-4 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary ${isOptionSelected ? 'text-black dark:text-white' : ''
                                         }`}
                                 >
-
                                     <option value="5" className="text-body dark:text-bodydark">
-                                        5
+                                        {convertNumberFormat(5, i18n.language)}
                                     </option>
                                     <option value="10" className="text-body dark:text-bodydark">
-                                        10
+                                        {convertNumberFormat(10, i18n.language)}
                                     </option>
 
                                     <option value="20" className="text-body dark:text-bodydark">
-                                        20
+                                        {convertNumberFormat(20, i18n.language)}
                                     </option>
 
                                     <option value="50" className="text-body dark:text-bodydark">
-                                        50
+                                        {convertNumberFormat(50, i18n.language)}
                                     </option>
                                     <option value="100" className="text-body dark:text-bodydark">
-                                        100
+                                        {convertNumberFormat(100, i18n.language)}
                                     </option>
                                 </select>
 
-                                <span className="absolute top-1/2 right-4 z-30 -translate-y-1/2">
+                                <span className={`absolute top-1/2 ${i18n.language === "fa" ? "left-4" : "right-4"} z-30 -translate-y-1/2`}>
                                     <svg
                                         className="fill-current"
                                         width="24"

@@ -1,7 +1,30 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import io from 'socket.io-client';
 
 const DropdownNotification = () => {
+
+
+//   const [notifications, setNotifications] = useState([]);
+
+//   useEffect(() => {
+//     // Connect to WebSocket server
+// // Frontend connection request example
+// const socket = io('http://localhost:3000', { withCredentials: true });
+
+//     // Listen for 'notification' event
+//     socket.on('notification', (notification) => {
+//       setNotifications((prevNotifications) => [...prevNotifications, notification]);
+//     });
+
+//     // Clean up WebSocket connection on component unmount
+//     return () => {
+//       socket.disconnect();
+//     };
+//   }, []);
+
+
+
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [notifying, setNotifying] = useState(true);
 

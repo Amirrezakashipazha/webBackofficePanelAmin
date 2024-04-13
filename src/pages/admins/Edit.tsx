@@ -4,13 +4,15 @@ import SelectGroupOne from '../../components/Forms/SelectGroup/SelectGroupOne';
 import { useEffect, useState } from 'react';
 import useAxios from "../../hooks/useAxios";
 import { useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from "react-i18next";
 
 const EditAdmins = () => {
+    const { t ,i18n} = useTranslation();
 
     const { id } = useParams();
 
     const navigate = useNavigate();
-    const { get, response: responseSingleUser, error: errorSingleUser, loading: loadingSingleUser } = useAxios();
+    const { get, response: responseSingleAdmin, error: errorSingleAdmin, loading: loadingSingleAdmin } = useAxios();
 
     const [selectedOption, setSelectedOption] = useState<string>();
     const [isOptionSelected, setIsOptionSelected] = useState<boolean>(false);
@@ -64,13 +66,13 @@ const EditAdmins = () => {
 
     useEffect(() => {
         if (response) {
-            console.log('User Updated successfully:', response);
+            console.log('admin Updated successfully:', response);
             navigate('/admins');
         }
     }, [response, navigate]);
 
 
-    const HandleEditUser = async (event) => {
+    const HandleEditAdmin = async (event) => {
         event.preventDefault();
         var formData = new FormData(event.target);
         formData.append("status", selectedOption)
@@ -84,7 +86,7 @@ const EditAdmins = () => {
                 },
             });
         } catch (err) {
-            console.error('Error updating user:', err);
+            console.error('Error updating admin:', err);
         }
     };
 
@@ -98,25 +100,25 @@ const EditAdmins = () => {
 
     useEffect(() => {
 
-        if (responseSingleUser) {
+        if (responseSingleAdmin) {
             setState({
-                username: responseSingleUser[0].username || "",
-                status: responseSingleUser[0].status || "active",
-                password: responseSingleUser[0].password || "",
-                avatar: responseSingleUser[0].avatar || "",
+                username: responseSingleAdmin[0].username || "",
+                status: responseSingleAdmin[0].status || "active",
+                password: responseSingleAdmin[0].password || "",
+                avatar: responseSingleAdmin[0].avatar || "",
             });
-            setSelectedOption(responseSingleUser[0]?.status);
+            setSelectedOption(responseSingleAdmin[0]?.status);
 
             console.log(state);
         }
-    }, [responseSingleUser]);
+    }, [responseSingleAdmin]);
 
     if (loading) return <p>Loading...</p>;
     if (error) return <p>Error: {error}</p>;
 
     return (
         <DefaultLayout>
-            <Breadcrumb pageName="Edit" parentPageName="admins" location={true} />
+            <Breadcrumb pageName={t("Edit")} parentPageName={t("Admins")} parentPageUrl={"admins"} location={true} />
 
             <div className="flex flex-col gap-10">
 
@@ -126,7 +128,7 @@ const EditAdmins = () => {
 
                         <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
 
-                            <form action="#" onSubmit={HandleEditUser}>
+                            <form action="#" onSubmit={HandleEditAdmin}>
                                 <div className="p-6.5">
                                     <div className="relative z-30 mx-auto mb-4.5  h-30 w-full max-w-30 rounded-full bg-white/20 p-1 backdrop-blur sm:h-44 sm:max-w-44 sm:p-3">
                                         <div className="relative drop-shadow-2 w-[152px] h-[152px]">
@@ -171,28 +173,30 @@ const EditAdmins = () => {
                                     <div className="mb-4.5 flex flex-col gap-6 xl:flex-row">
                                         <div className="w-full xl:w-1/2">
                                             <label className="mb-2.5 block text-black dark:text-white">
-                                                Username <span className="text-meta-1">*</span>
+                                                {t("Username")} <span className="text-meta-1">*</span>
                                             </label>
                                             <input
                                                 name="username"
-                                                value={responseSingleUser?.username || state.username}
+                                                value={responseSingleAdmin?.username || state.username}
                                                 onChange={handleChange}
                                                 title="User name"
                                                 type="text"
-                                                placeholder="Enter your first name"
+                                                placeholder={t("Enter Your name")}
+
                                                 className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                                             />
                                         </div>
 
                                         <div className="w-full xl:w-1/2">
                                             <label className="mb-2.5 block text-black dark:text-white">
-                                                Password <span className="text-meta-1">*</span>
+                                                {t("Password")} <span className="text-meta-1">*</span>
                                             </label>
                                             <input
                                                 name="password" value={state.password}
                                                 onChange={handleChange}
                                                 type="password"
-                                                placeholder="Enter password"
+                                                placeholder={t("Enter Your password")}
+
                                                 className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                                             />
                                         </div>
@@ -205,7 +209,7 @@ const EditAdmins = () => {
 
                                             <div className="mb-4.5">
                                                 <label className="mb-2.5 block text-black dark:text-white">
-                                                    status
+                                                    {t('Status')}
                                                 </label>
 
                                                 <div className="relative z-20 bg-transparent dark:bg-form-input">
@@ -217,15 +221,16 @@ const EditAdmins = () => {
                                                     >
 
                                                         <option value="active" className="text-body dark:text-bodydark">
-                                                            active
+                                                            {t('active')}
                                                         </option>
                                                         <option value="inactive" className="text-body dark:text-bodydark">
-                                                            inactive
+                                                            {t('inactive')}
                                                         </option>
 
                                                     </select>
 
-                                                    <span className="absolute top-1/2 right-4 z-30 -translate-y-1/2">
+                                                    <span className={`absolute top-1/2 ${i18n.language==="fa"?"left-4":"right-4"} z-30 -translate-y-1/2`}>
+
                                                         <svg
                                                             className="fill-current"
                                                             width="24"
@@ -251,7 +256,7 @@ const EditAdmins = () => {
 
 
                                     <button type="submit" className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90">
-                                        Submit
+                                        {t('Submit')}
                                     </button>
                                 </div>
                             </form>

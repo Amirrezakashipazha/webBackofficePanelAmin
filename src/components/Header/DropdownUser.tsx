@@ -4,7 +4,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import UserOne from '../../images/user/user-01.png';
 import useAxios from '../../hooks/useAxios';
 import { useResponse } from '../../ResponseContext';
+import { useTranslation } from 'react-i18next';
 const DropdownUser = () => {
+    const { t } = useTranslation();
+    const { response:role, setResponse:setRole } = useResponse();
+
   const [dropdownOpen, setDropdownOpen] = useState(false);
   
   const { response:responseContext, setResponse } = useResponse();
@@ -115,11 +119,11 @@ const DropdownUser = () => {
                   fill=""
                 />
               </svg>
-              My Profile
+              {t('My Profile')}
             </Link>
           </li>
          
-          <li>
+          {role.user?.role==="super-admin"&&<li>
             <Link
               to="/settings"
               className="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
@@ -141,9 +145,9 @@ const DropdownUser = () => {
                   fill=""
                 />
               </svg>
-              Settings
+              {t('Settings')}
             </Link>
-          </li>
+          </li>}
         </ul>
         <button onClick={HandleLogOut} className="flex items-center gap-3.5 px-6 py-4 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base">
           <svg
@@ -163,7 +167,7 @@ const DropdownUser = () => {
               fill=""
             />
           </svg>
-          Log Out
+          {t('Log Out')}
         </button>
       </div>
       {/* <!-- Dropdown End --> */}

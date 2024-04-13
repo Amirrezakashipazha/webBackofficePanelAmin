@@ -4,8 +4,10 @@ import SelectGroupOne from '../../components/Forms/SelectGroup/SelectGroupOne';
 import { useEffect, useState } from 'react';
 import useAxios from "../../hooks/useAxios";
 import { useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from "react-i18next";
 
 const Edit = () => {
+    const { t ,i18n} = useTranslation();
 
     const { id } = useParams();
 
@@ -23,6 +25,8 @@ const Edit = () => {
     const [state, setState] = useState({
         username: "",
         email: "",
+        address:"",
+        phone:"",
         password: "",
         status: "active",
         avatar: ""
@@ -44,7 +48,7 @@ const Edit = () => {
     const [selectedAvatar, setSelectedAvatar] = useState();
     const HandleChangeAvatar = (e) => {
         setSelectedAvatar(e.target.files[0]);
-    
+
 
         console.log(e.target.files[0]);
         setState((prevState) => ({
@@ -103,6 +107,8 @@ const Edit = () => {
             setState({
                 username: responseSingleUser[0].username || "",
                 email: responseSingleUser[0].email || "",
+                phone: responseSingleUser[0].phone || "",
+                address: responseSingleUser[0].address || "",
                 status: responseSingleUser[0].status || "active",
                 password: responseSingleUser[0].password || "",
                 avatar: responseSingleUser[0].avatar || "",
@@ -118,7 +124,7 @@ const Edit = () => {
 
     return (
         <DefaultLayout>
-            <Breadcrumb pageName="Edit" parentPageName="users" location={true} />
+            <Breadcrumb pageName={t("Edit")} parentPageName={t("Users")} parentPageUrl={"users"}  location={true} />
 
             <div className="flex flex-col gap-10">
 
@@ -173,7 +179,7 @@ const Edit = () => {
                                     <div className="mb-4.5 flex flex-col gap-6 xl:flex-row">
                                         <div className="w-full xl:w-1/2">
                                             <label className="mb-2.5 block text-black dark:text-white">
-                                                Username <span className="text-meta-1">*</span>
+                                                {t("Username")} <span className="text-meta-1">*</span>
                                             </label>
                                             <input
                                                 name="username"
@@ -181,20 +187,52 @@ const Edit = () => {
                                                 onChange={handleChange}
                                                 title="User name"
                                                 type="text"
-                                                placeholder="Enter your first name"
+                                                placeholder={t("Enter Your name")}
+
                                                 className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                                             />
                                         </div>
 
                                         <div className="w-full xl:w-1/2">
                                             <label className="mb-2.5 block text-black dark:text-white">
-                                                Password <span className="text-meta-1">*</span>
+                                                {t("Password")} <span className="text-meta-1">*</span>
                                             </label>
                                             <input
                                                 name="password" value={state.password}
                                                 onChange={handleChange}
                                                 type="password"
-                                                placeholder="Enter password"
+                                                placeholder={t("Enter Your password")}
+                                                className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="mb-4.5 flex flex-col gap-6 xl:flex-row">
+                                        <div className="w-full xl:w-1/2">
+                                            <label className="mb-2.5 block text-black dark:text-white">
+                                                {t("phone")} <span className="text-meta-1">*</span>
+                                            </label>
+                                            <input
+                                                name="phone"
+                                                value={state.phone}
+                                                onChange={handleChange}
+                                                title="User name"
+                                                type="text"
+                                                placeholder={t("Enter your phone number")}
+
+                                                className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                                            />
+                                        </div>
+
+                                        <div className="w-full xl:w-1/2">
+                                            <label className="mb-2.5 block text-black dark:text-white">
+                                                {t("address")} <span className="text-meta-1">*</span>
+                                            </label>
+                                            <input
+                                                name="address" value={state.address}
+                                                onChange={handleChange}
+                                                type="text"
+                                                placeholder={t("Enter Your address")}
+
                                                 className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                                             />
                                         </div>
@@ -203,14 +241,15 @@ const Edit = () => {
                                     <div className="mb-4.5 flex flex-col gap-6 xl:flex-row">
                                         <div className="w-full xl:w-1/2">
                                             <label className="mb-2.5 block text-black dark:text-white">
-                                                Email <span className="text-meta-1">*</span>
+                                                {t('Email')} <span className="text-meta-1">*</span>
                                             </label>
                                             <input
                                                 name="email" value={state.email}
                                                 onChange={handleChange}
                                                 title="Email"
                                                 type="email"
-                                                placeholder="Enter your email address"
+                                                placeholder={t("Enter your email")}
+
                                                 className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                                             />
                                         </div>
@@ -219,7 +258,7 @@ const Edit = () => {
 
                                             <div className="mb-4.5">
                                                 <label className="mb-2.5 block text-black dark:text-white">
-                                                    status
+                                                    {t("Status")}
                                                 </label>
 
                                                 <div className="relative z-20 bg-transparent dark:bg-form-input">
@@ -231,15 +270,16 @@ const Edit = () => {
                                                     >
 
                                                         <option value="active" className="text-body dark:text-bodydark">
-                                                            active
+                                                            {t("active")}
                                                         </option>
                                                         <option value="inactive" className="text-body dark:text-bodydark">
-                                                            inactive
+                                                            {t("inactive")}
                                                         </option>
 
                                                     </select>
 
-                                                    <span className="absolute top-1/2 right-4 z-30 -translate-y-1/2">
+                                                    <span className={`absolute top-1/2 ${i18n.language==="fa"?"left-4":"right-4"} z-30 -translate-y-1/2`}>
+
                                                         <svg
                                                             className="fill-current"
                                                             width="24"
@@ -265,7 +305,7 @@ const Edit = () => {
 
 
                                     <button type="submit" className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90">
-                                        Submit
+                                        {t("Submit")}
                                     </button>
                                 </div>
                             </form>

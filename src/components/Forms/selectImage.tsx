@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 const SelectImage = ({ image, close, id, onFileSelect }: { image: string, close: () => void, id: string, onFileSelect: (file: File) => void }) => {
     const [selectedAvatar, setSelectedAvatar] = useState<File | string | null>(image);
     const [objectUrl, setObjectUrl] = useState<string | null>(null);
 
+    const { t } = useTranslation();
 
     useEffect(() => {
         setSelectedAvatar(image);
@@ -38,7 +40,7 @@ const SelectImage = ({ image, close, id, onFileSelect }: { image: string, close:
             {imageUrl ? (
                 <img src={imageUrl} alt="" className="h-full w-full object-cover" />
             ) : (
-                <p>Select an image</p>
+                <p>{t("Select an image")}</p>
             )}
 
 

@@ -6,10 +6,12 @@ import Logo from '../../images/logo/logo.svg';
 import DefaultLayout from '../../layout/DefaultLayout';
 import useAxios from '../../hooks/useAxios';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const SignIn: React.FC = () => {
 
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const { post, response, error, loading } = useAxios();
   const [state, setState] = useState({
@@ -32,7 +34,7 @@ const SignIn: React.FC = () => {
         password: state.password,
       });
     } catch (err) {
-      console.error('Error creating category:', err);
+      console.error('Error auth:', err);
     }
   }
   useEffect(()=>{
@@ -50,15 +52,14 @@ const SignIn: React.FC = () => {
 
         <div className="w-full mx-auto xl:w-1/2">
           <div className="w-full p-4 sm:p-12.5 xl:p-17.5">
-            <span className="mb-1.5 block font-medium">Start for free</span>
             <h2 className="mb-9 text-2xl font-bold text-black dark:text-white sm:text-title-xl2">
-              Sign In to TailAdmin
+              {t('Sign In to panelAdmin')}
             </h2>
 
             <form onSubmit={HandleSubmitLogin}>
               <div className="mb-4">
                 <label className="mb-2.5 block font-medium text-black dark:text-white">
-                  Username
+                  {t("Username")}
                 </label>
                 <div className="relative">
                   <input
@@ -66,7 +67,7 @@ const SignIn: React.FC = () => {
                     name='username'
                     value={state.username}
                     onChange={(e) => setState({ ...state, username: e.target.value })}
-                    placeholder="Enter your email"
+                    placeholder={t("Enter your email")}
                     className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                   />
 
@@ -92,7 +93,7 @@ const SignIn: React.FC = () => {
 
               <div className="mb-6">
                 <label className="mb-2.5 block font-medium text-black dark:text-white">
-                  Password
+                  {t("Password")}
                 </label>
                 <div className="relative">
                   <input
@@ -100,7 +101,7 @@ const SignIn: React.FC = () => {
                     type="password"
                     value={state.password}
                     onChange={(e) => setState({ ...state, password: e.target.value })}
-                    placeholder="6+ Characters, 1 Capital letter"
+                    placeholder={t("Enter Your Password")}
                     className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                   />
 
@@ -131,12 +132,12 @@ const SignIn: React.FC = () => {
               <div className="mb-5">
                 <input
                   type="submit"
-                  value="Sign In"
+                  value={t("Sign In")}
                   className="w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 text-white transition hover:bg-opacity-90"
                 />
               </div>
 
-              <button className="flex w-full items-center justify-center gap-3.5 rounded-lg border border-stroke bg-gray p-4 hover:bg-opacity-50 dark:border-strokedark dark:bg-meta-4 dark:hover:bg-opacity-50">
+              {/* <button className="flex w-full items-center justify-center gap-3.5 rounded-lg border border-stroke bg-gray p-4 hover:bg-opacity-50 dark:border-strokedark dark:bg-meta-4 dark:hover:bg-opacity-50">
                 <span>
                   <svg
                     width="20"
@@ -180,7 +181,7 @@ const SignIn: React.FC = () => {
                     Sign Up
                   </Link>
                 </p>
-              </div>
+              </div> */}
             </form>
           </div>
         </div>

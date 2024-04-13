@@ -2,8 +2,10 @@ import { Link } from 'react-router-dom';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 import SelectGroupOne from '../../components/Forms/SelectGroup/SelectGroupOne';
 import DefaultLayout from '../../layout/DefaultLayout';
+import { useTranslation } from 'react-i18next';
 
 const FormLayout = () => {
+  const { t } = useTranslation();
   return (
     <DefaultLayout>
       <Breadcrumb pageName="Form Layout" />

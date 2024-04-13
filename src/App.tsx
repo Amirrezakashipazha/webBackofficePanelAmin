@@ -33,8 +33,12 @@ import AccountSetting from './pages/accountSetting/accountSetting';
 import Admins from './pages/admins/admins';
 import CreateAdmins from './pages/admins/Create';
 import EditAdmins from './pages/admins/Edit';
+import getDirection from './utils/GetDirection';
+import { useTranslation } from 'react-i18next';
+
 
 function App() {
+
   const { response: responseContext, setResponse } = useResponse();
   console.log(responseContext);
   const navigate = useNavigate();
@@ -42,7 +46,6 @@ function App() {
   const { pathname } = useLocation();
   const { get, response, error, loading: loadingIsadmin } = useAxios();
   const { get: getsetting, response: responsesetting, error: errorsetting, loading: loadingsetting } = useAxios();
-
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
@@ -80,15 +83,33 @@ function App() {
     }
 
     const link = document.querySelector("link[rel*='icon']");
-    console.log(responseContext?.setting?.icon);
+
     if (link) {
       link.href = responseContext?.setting?.icon;
+    }
+    const meta_description = document.querySelector("meta[name='description']");
+
+    if (meta_description) {
+      meta_description.content = responseContext?.setting?.meta_description;
     }
 
     if (response || error) {
       setLoading(false);
     }
   }, [response, error]);
+
+  // useEffect(() => {
+  //   const handleRightClick = event => {
+  //     event.preventDefault();
+  //   };
+
+  //   document.addEventListener('contextmenu', handleRightClick);
+
+  //   return () => {
+  //     document.removeEventListener('contextmenu', handleRightClick);
+  //   };
+  // }, []);
+
 
 
   return loading ? (

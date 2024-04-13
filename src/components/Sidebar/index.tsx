@@ -4,6 +4,7 @@ import SidebarLinkGroup from './SidebarLinkGroup';
 import Logo from '../../images/logo/logo.svg';
 import FullScreenButton from '../../pages/UiElements/FullScreenBtn';
 import { useResponse } from '../../ResponseContext';
+import { useTranslation } from 'react-i18next';
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -11,6 +12,8 @@ interface SidebarProps {
 }
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
+  const { t, i18n } = useTranslation();
+
   const { response, setResponse } = useResponse();
 
   const location = useLocation();
@@ -62,14 +65,22 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   return (
     <aside
       ref={sidebar}
-      className={`absolute left-0 top-0 z-9999 flex h-screen w-72.5 flex-col overflow-y-hidden bg-white transition duration-300 ease-linear dark:bg-boxdark lg:static lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+      className={`absolute ${i18n.language === "fa" ? "right-0" : "left-0"} top-0 z-9999 flex h-screen w-72.5 flex-col overflow-y-hidden bg-white transition
+       duration-300 ease-linear dark:bg-boxdark lg:static lg:translate-x-0 
+       ${sidebarOpen ? i18n.language === "fa" ? 'translate-x-[0]' : 'translate-x-0' : i18n.language === "fa" ? 'translate-x-[100%]' : '-translate-x-full'
+
+
+        }
+        
+        
+
+        `}
     >
       {/* <FullScreenButton /> */}
       {/* <!-- SIDEBAR HEADER --> */}
       <div className="flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5">
         <NavLink to="/">
-          <img src={response?.setting?.logo||Logo} alt="Logo" className=''/>
+          <img src={response?.setting?.logo || Logo} alt="Logo" className='' />
         </NavLink>
 
         <button
@@ -101,8 +112,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         <nav className="mt-5 py-4 px-4 lg:mt-9 lg:px-6">
           {/* <!-- Menu Group --> */}
           <div>
-            <h3 className="mb-4 ml-4 text-sm font-semibold text-bodydark2">
-              MENU
+            <h3 className={`mb-4 ${i18n.language === "fa" ? "mr-4" : "ml-4"} text-sm font-semibold text-bodydark2>`}>
+              {t('MENU')}
             </h3>
 
             <ul className="mb-6 flex flex-col gap-1.5">
@@ -140,7 +151,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                       fill=""
                     />
                   </svg>
-                  Dashboard
+                  {t("Dashboard")}
 
                 </NavLink>
               </li>
@@ -168,7 +179,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                       fill=""
                     />
                   </svg>
-                  Profile
+                  {t('Profile')}
                 </NavLink>
               </li>
 
@@ -180,7 +191,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 >
                   <img src="/admins.svg" alt="" className='w-[20px] h-[20px] hidden dark:block' />
                   <img src="/admins-light-mode.svg" alt="" className='w-[20px] h-[20px] dark:hidden' />
-                  Admins
+                  {t('Admins')}
                 </NavLink>
               </li>}
               <li>
@@ -195,7 +206,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
 
                   <img src="/users.svg" alt="" className='w-[20px] h-[20px] hidden dark:block' />
                   <img src="/users-light-mode.svg" alt="" className='w-[20px] h-[20px] dark:hidden' />
-                  Users
+                  {t('Users')}
                 </NavLink>
               </li>
 
@@ -212,7 +223,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   <img src="/product.svg" alt="" className='w-[20px] h-[20px] hidden dark:block' />
                   <img src="/product-light-mode.svg" alt="" className='w-[20px] h-[20px] dark:hidden' />
 
-                  Products
+                  {t('Products')}
                 </NavLink>
               </li>
               <li>
@@ -224,7 +235,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 >
                   <img src="/category.svg" alt="" className='w-[20px] h-[20px] hidden dark:block' />
                   <img src="/category-light-mode.svg" alt="" className='w-[20px] h-[20px] dark:hidden' />
-                  Categories
+                  {t('Categories')}
                 </NavLink>
               </li>
               <li>
@@ -236,7 +247,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 >
                   <img src="/order.svg" alt="" className='w-[20px] h-[20px] hidden dark:block' />
                   <img src="/order-light-mode.svg" alt="" className='w-[20px] h-[20px] dark:hidden' />
-                  Orders
+                  {t('Orders')}
                 </NavLink>
               </li>
               <li>
@@ -248,10 +259,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 >
                   <img src="/sale.svg" alt="" className='w-[20px] h-[20px] hidden dark:block' />
                   <img src="/sale-light-mode.svg" alt="" className='w-[20px] h-[20px] dark:hidden' />
-                  Sale
+                  {t('Sale')}
                 </NavLink>
               </li>
-              <li>
+              {response.user?.role === "super-admin" && <li>
                 <NavLink
                   to="/settings"
                   className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-black dark:text-white duration-300 ease-in-out hover:bg-stroke dark:hover:bg-meta-4 ${pathname.includes('settings') &&
@@ -287,9 +298,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                       </clipPath>
                     </defs>
                   </svg>
-                  Settings
+                  {t('Settings')}
                 </NavLink>
-              </li>
+              </li>}
 
             </ul>
           </div>

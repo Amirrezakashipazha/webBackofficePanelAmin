@@ -6,8 +6,10 @@ import useAxios from "../../hooks/useAxios";
 import { useNavigate, useParams } from 'react-router-dom';
 import { v4 as uuidv4 } from "uuid";
 import SelectImage from "../../components/Forms/selectImage";
+import { useTranslation } from "react-i18next";
 
 const EditProduct = () => {
+    const { t, i18n } = useTranslation();
     const { get: getCategory, response: responseCategory, error: errorCategory, loading: loadingCategory } = useAxios();
 
     useEffect(() => {
@@ -110,6 +112,9 @@ const EditProduct = () => {
     }, [response, navigate]);
 
 
+    useEffect(() => {
+        console.log(selectedFiles, "selectedFiles")
+    }, [selectedFiles])
     const HandleEditUser = async (event) => {
         event.preventDefault();
         var formData = new FormData(event.target);
@@ -227,7 +232,7 @@ const EditProduct = () => {
 
     return (
         <DefaultLayout>
-            <Breadcrumb pageName="Edit" parentPageName="products" location={true}/>
+            <Breadcrumb pageName={t("Edit")} parentPageName={t("Products")} parentPageUrl="products" location={true} />
 
             <div className="flex flex-col gap-10">
 
@@ -242,12 +247,12 @@ const EditProduct = () => {
                                     <div className="mb-4.5 flex flex-col gap-6 xl:flex-row">
                                         <div className="w-full">
                                             <label className="mb-2.5 block text-black dark:text-white">
-                                                Images <span className="text-meta-1">*</span>
+                                                {t("Images")} <span className="text-meta-1">*</span>
                                             </label>
 
 
                                             <button type="button" onClick={addImageComponent} className="flex w-[100px] justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90">
-                                                Add
+                                                {t("Add")}
                                             </button>
                                             <div className="w-full flex flex-wrap gap-5">
 
@@ -272,7 +277,7 @@ const EditProduct = () => {
                                     <div className="mb-4.5 flex flex-col gap-6 xl:flex-row">
                                         <div className="w-full xl:w-1/2">
                                             <label className="mb-2.5 block text-black dark:text-white">
-                                                Product Name <span className="text-meta-1">*</span>
+                                                {t("Product Name")} <span className="text-meta-1">*</span>
                                             </label>
                                             <input
                                                 name="name"
@@ -280,21 +285,21 @@ const EditProduct = () => {
                                                 onChange={handleChange}
                                                 title="Product Name"
                                                 type="text"
-                                                placeholder="Enter Product Name"
+                                                placeholder={t("Enter Product Name")}
                                                 className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                                             />
                                         </div>
 
                                         <div className="w-full xl:w-1/2">
                                             <label className="mb-2.5 block text-black dark:text-white">
-                                                Price <span className="text-meta-1">*</span>
+                                                {t("Price")} <span className="text-meta-1">*</span>
                                             </label>
                                             <input
                                                 name="price"
                                                 value={state.price}
                                                 onChange={handleChange}
                                                 type="number"
-                                                placeholder="Enter Price"
+                                                placeholder={t("Enter Price")}
                                                 className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                                             />
                                         </div>
@@ -303,7 +308,7 @@ const EditProduct = () => {
                                     <div className="mb-4.5 flex flex-col gap-6 xl:flex-row">
                                         <div className="w-full xl:w-1/2">
                                             <label className="mb-2.5 block text-black dark:text-white">
-                                                Discount <span className="text-meta-1">*</span>
+                                                {t("Discount")} <span className="text-meta-1">*</span>
                                             </label>
                                             <div className="w-full flex items-center relative bg-transparent  text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary">
                                                 <input
@@ -311,10 +316,10 @@ const EditProduct = () => {
                                                     value={state.discount}
                                                     onChange={handleChange}
                                                     type="number"
-                                                    placeholder="Enter Discount"
+                                                    placeholder={t("Enter Discount")}
                                                     className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                                                 />
-                                                <p className="absolute top-[0] right-[16px] transform translate-y-[50%] dark:text-white text-black">%</p>
+                                                <p className={`absolute top-[0] ${i18n.language === "fa" ? "left-[16px]" : "right-[16px]"} transform translate-y-[50%] dark:text-white text-black`}>%</p>
                                             </div>
 
                                         </div>
@@ -322,7 +327,7 @@ const EditProduct = () => {
                                         <div className="w-full xl:w-1/2">
 
                                             <label className="mb-2.5 block text-black dark:text-white">
-                                                Total price <span className="text-meta-1">*</span>
+                                                {t("Total price")} <span className="text-meta-1">*</span>
                                             </label>
                                             {/* <input
                                                 name="totalPrice"
@@ -345,7 +350,7 @@ const EditProduct = () => {
                                         <div className="w-full xl:w-1/2">
                                             <div className="mb-4.5">
                                                 <label className="mb-2.5 block text-black dark:text-white">
-                                                    Category <span className="text-meta-1">*</span>
+                                                    {t("Category")} <span className="text-meta-1">*</span>
                                                 </label>
 
                                                 <div className="relative z-20 bg-transparent dark:bg-form-input">
@@ -365,7 +370,7 @@ const EditProduct = () => {
 
                                                     </select>
 
-                                                    <span className="absolute top-1/2 right-4 z-30 -translate-y-1/2">
+                                                    <span className={`absolute top-1/2 ${i18n.language === "fa" ? "left-4" : "right-4"} z-30 -translate-y-1/2`}>
                                                         <svg
                                                             className="fill-current"
                                                             width="24"
@@ -392,7 +397,7 @@ const EditProduct = () => {
 
                                             <div className="mb-4.5">
                                                 <label className="mb-2.5 block text-black dark:text-white">
-                                                    Status <span className="text-meta-1">*</span>
+                                                    {t("Status")} <span className="text-meta-1">*</span>
                                                 </label>
 
                                                 <div className="relative z-20 bg-transparent dark:bg-form-input">
@@ -406,15 +411,15 @@ const EditProduct = () => {
                                                     >
 
                                                         <option value="active" className="text-body dark:text-bodydark">
-                                                            active
+                                                            {t("active")}
                                                         </option>
                                                         <option value="inactive" className="text-body dark:text-bodydark">
-                                                            inactive
+                                                            {t("inactive")}
                                                         </option>
 
                                                     </select>
 
-                                                    <span className="absolute top-1/2 right-4 z-30 -translate-y-1/2">
+                                                    <span className={`absolute top-1/2 ${i18n.language === "fa" ? "left-4" : "right-4"} z-30 -translate-y-1/2`}>
                                                         <svg
                                                             className="fill-current"
                                                             width="24"
@@ -441,7 +446,7 @@ const EditProduct = () => {
                                     <div className="mb-4.5 flex flex-col gap-6 xl:flex-row">
                                         <div className="w-full">
                                             <label className="mb-2.5 block text-black dark:text-white">
-                                                Description <span className="text-meta-1">*</span>
+                                                {t("Description")} <span className="text-meta-1">*</span>
                                             </label>
 
                                             <textarea id="" cols={30} rows={10}
@@ -451,7 +456,7 @@ const EditProduct = () => {
                                                 onChange={handleChange}
                                                 title="Description"
 
-                                                placeholder="Enter your Description"
+                                                placeholder={t("Enter your Description")}
                                                 className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                                             >
 
@@ -463,7 +468,7 @@ const EditProduct = () => {
 
 
                                     <button type="submit" className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90">
-                                        Submit
+                                        {t("Submit")}
                                     </button>
                                 </div>
                             </form>

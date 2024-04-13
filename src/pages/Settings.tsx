@@ -1,13 +1,29 @@
-import { useNavigate } from 'react-router-dom';
-import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
-import useAxios from '../hooks/useAxios';
-import userThree from '../images/user/user-03.png';
-import DefaultLayout from '../layout/DefaultLayout';
+import Breadcrumb from "./../components/Breadcrumbs/Breadcrumb";
+import DefaultLayout from "./../layout/DefaultLayout";
+import SelectGroupOne from './../components/Forms/SelectGroup/SelectGroupOne';
 import { useEffect, useState } from 'react';
+import useAxios from "./../hooks/useAxios";
+import { useNavigate, useParams } from 'react-router-dom';
+import { useResponse } from "../ResponseContext";
+import { useTranslation } from "react-i18next";
 
-const Settings = () => {
+const Edit = () => {
+  const { t } = useTranslation();
+
+  const { response:role, setResponse:setRole } = useResponse();
+
+  const { id } = useParams();
+
   const navigate = useNavigate();
-  const [selectedIcon, setSelectedIcon] = useState(null);
+  const { get: getSetting, response: responseSetting, error: errorSetting, loading: loadingSetting } = useAxios();
+
+  const [selectedOption, setSelectedOption] = useState<string>();
+  const [isOptionSelected, setIsOptionSelected] = useState<boolean>(false);
+
+  const changeTextColor = () => {
+    setIsOptionSelected(true);
+  };
+
 
   const [state, setState] = useState({
     phone: "",
@@ -18,82 +34,124 @@ const Settings = () => {
     icon: null
   });
 
-  const { patch, response, error, loading } = useAxios();
-  const { get: getsetting, response: responsesetting, error: errorsetting, loading: loadingsetting } = useAxios();
-
-
   useEffect(() => {
-    getsetting(`http://localhost:3000/api/setting`);
-  }, [navigate]);
-
-
-  const HandleEditSetting = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    var formData = new FormData(event.target as HTMLFormElement);
-
-    for (var [key, value] of formData.entries()) {
-      console.log(key, value);
-    }
-
-    try {
-      await patch('http://localhost:3000/api/setting', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+    getSetting("http://localhost:3000/api/setting")
+  }, [])
+  useEffect(() => {
+    if (responseSetting && responseSetting[0]) {
+      setState({
+        name: responseSetting[0]?.name || "",
+        phone: responseSetting[0]?.phone || "",
+        email: responseSetting[0]?.email || "",
+        address: responseSetting[0]?.address || "",
+        meta_description: responseSetting[0]?.meta_description || "",
+        logo: responseSetting[0]?.logo || "",
+        icon: responseSetting[0]?.icon || "",
       });
-      // navigate('/')
-    } catch (err) {
-      console.error('Error creating user:', err);
     }
-  };
+  }, [responseSetting])
 
-  const handleChange = (event: React.FormEvent<HTMLFormElement>) => {
-    const { name, value } = event.target as HTMLFormElement;
+
+  const { patch, response, error, loading } = useAxios();
+
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+
+  const [selectedLogo, setSelectedLogo] = useState();
+  const HandleChangeLogo = (e) => {
+    const newLogo = e.target.files[0];
+    setSelectedLogo(newLogo);
+    // Update selectedFiles based on whether an icon is already selected
+    if (selectedIcon) {
+      setSelectedFiles([newLogo, selectedIcon]);
+    } else {
+      setSelectedFiles([newLogo]);
+    }
+    setState((prevState) => ({
+      ...prevState,
+      avatar: e.target.value,
+    }));
+  }
+  const [selectedIcon, setSelectedIcon] = useState();
+  const HandleChangeIcon = (e) => {
+    const newIcon = e.target.files[0];
+    setSelectedIcon(newIcon);
+    // Update selectedFiles based on whether a logo is already selected
+    if (selectedLogo) {
+      setSelectedFiles([selectedLogo, newIcon]); // Keeps the logo as the first item
+    } else {
+      setSelectedFiles([newIcon]);
+    }
+    setState((prevState) => ({
+      ...prevState,
+      avatar: e.target.value,
+    }));
+  }
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
 
     setState((prevState) => ({
       ...prevState,
       [name]: value,
     }));
+    console.log(state);
   };
-  const [selectedLogo, setSelectedLogo] = useState(null);
-  const HandleChangeLogo = (e: React.FormEvent<HTMLFormElement>) => {
-    const target = e.target as HTMLFormElement;
-    setSelectedLogo(target.files[0]);
-    setState((prevState) => ({
-      ...prevState,
-      logo: target.value,
-    }));
-  }
-  const HandleChangeIcon = (e: React.FormEvent<HTMLFormElement>) => {
-    const target = e.target as HTMLFormElement;
-    setSelectedIcon(target.files[0]);
-    setState((prevState) => ({
-      ...prevState,
-      icon: target.value,
-    }));
-  }
 
-  useEffect(() => {
-    if (responsesetting) {
-      setState({
-        phone: responsesetting[0].phone || "",
-        email: responsesetting[0].email || "",
-        address: responsesetting[0].address || "active",
-        meta_description: responsesetting[0].meta_description || "",
-        logo: responsesetting[0].logo || "",
-        icon: responsesetting[0].icon || "",
-      });
 
+  const HandleEditSetting = async (event) => {
+    event.preventDefault();
+    var formData = new FormData(event.target);
+
+
+    // if (selectedLogo) {
+    //   formData.append('logo', selectedLogo);
+    // }
+    // if (selectedIcon) {
+    //   formData.append('icon', selectedIcon);
+    // }
+    for (var [key, value] of formData.entries()) {
+      console.log(key, value);
     }
-  }, [responsesetting]);
-  useEffect(() => {
-    console.log(selectedIcon, selectedLogo);
-  }, [selectedIcon, selectedLogo]);
+
+
+    try {
+      await patch(`http://localhost:3000/api/setting`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+    } catch (err) {
+      console.error('Error updating user:', err);
+    }
+  };
+
+  const handleDeleteLogo = () => {
+    setSelectedLogo(null);
+    setSelectedFiles((currentFiles) => currentFiles.filter(file => file !== selectedLogo));
+    setState((prevState) => ({
+      ...prevState,
+      logo: null,
+    }));
+  };
+
+  const handleDeleteIcon = () => {
+    setSelectedIcon(null);
+    setSelectedFiles((currentFiles) => currentFiles.filter(file => file !== selectedIcon));
+    setState((prevState) => ({
+      ...prevState,
+      icon: null,
+    }));
+  };
+
+
+  if(role.user?.role!=="super-admin")return <p>403</p>;
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error}</p>;
+
   return (
     <DefaultLayout>
       <div className="mx-auto max-w-270">
-        <Breadcrumb pageName="Website Settings" />
+        <Breadcrumb pageName={t("Website Settings")} />
 
         <div className="grid grid-cols-5 gap-8">
           <div className="col-span-5 ">
@@ -111,14 +169,14 @@ const Settings = () => {
                             className="mb-3 block text-sm font-medium text-black dark:text-white"
                             htmlFor="phone"
                           >
-                            Phone Number
+                            {t("Phone Number")}
                           </label>
                           <input
                             className="w-full rounded border border-stroke bg-gray py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
                             type="text"
                             name="phone"
                             id="phone"
-                            placeholder="+990 3343 7865"
+                            placeholder={t("Enter your phone number")}
                             onChange={handleChange}
                             value={state.phone}
                           />
@@ -130,7 +188,7 @@ const Settings = () => {
                           className="mb-3 block text-sm font-medium text-black dark:text-white"
                           htmlFor="email"
                         >
-                          Email Address
+                          {t("Email Address")}
                         </label>
                         <div className="relative">
                           <span className="absolute left-4.5 top-4">
@@ -163,7 +221,7 @@ const Settings = () => {
                             type="email"
                             name="email"
                             id="email"
-                            placeholder="devidjond45@gmail.com"
+                            placeholder={t("Enter your email")}
                             onChange={handleChange}
                             value={state.email}
                           />
@@ -175,14 +233,14 @@ const Settings = () => {
                           className="mb-3 block text-sm font-medium text-black dark:text-white"
                           htmlFor="address"
                         >
-                          Address
+                          {t("address")}
                         </label>
                         <input
                           className="w-full rounded border border-stroke bg-gray py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
                           type="text"
                           name="address"
                           id="address"
-                          placeholder="devidjhon24"
+                          placeholder={t("Enter Your address")}
                           onChange={handleChange}
                           value={state.address}
                         />
@@ -192,19 +250,19 @@ const Settings = () => {
                     <div className="w-full">
 
                       <div className="mb-6 flex items-center gap-3">
-                        <div className="h-14 w-14 rounded-full">
+                        <div className="h-14 w-auto rounded-full">
                           <img src={selectedLogo && URL.createObjectURL(selectedLogo) || state.logo} alt="User" />
                         </div>
                         <div>
                           <span className="mb-1.5 text-black dark:text-white">
-                            logo
+                            {t("Logo")}
                           </span>
                           <span className="flex gap-2.5">
-                            <button type='button' className="text-sm hover:text-primary" onClick={() => setSelectedLogo(null)}>
+                            {/* <button type='button' className="text-sm hover:text-primary" onClick={handleDeleteLogo}>
                               Delete
-                            </button>
+                            </button> */}
                             <label htmlFor='image' className="cursor-pointer text-sm hover:text-primary">
-                              Update
+                              {t("Update")}
                             </label>
                           </span>
                         </div>
@@ -252,8 +310,8 @@ const Settings = () => {
                             </svg>
                           </span>
                           <p>
-                            <span className="text-primary">Click to upload</span> or
-                            drag and drop
+                          <span className="text-primary">{t("Click to upload")} </span> 
+                            {t("or drag and drop")}
                           </p>
                           <p className="mt-1.5">SVG, PNG, JPG or GIF</p>
                           <p>(max, 800 X 800px)</p>
@@ -265,19 +323,19 @@ const Settings = () => {
                     <div className="w-full">
 
                       <div className="mb-6 flex items-center gap-3">
-                        <div className="h-14 w-14 rounded-full">
+                        <div className="h-14 w-auto rounded-full">
                           <img src={selectedIcon && URL.createObjectURL(selectedIcon) || state.icon} alt="User" />
                         </div>
                         <div>
                           <span className="mb-1.5 text-black dark:text-white">
-                            icon
+                            {t("Icon")}
                           </span>
                           <span className="flex gap-2.5">
-                            <button type='button' className="text-sm hover:text-primary" onClick={() => setSelectedIcon(null)}>
+                            {/* <button type='button' className="text-sm hover:text-primary" onClick={handleDeleteIcon}>
                               Delete
-                            </button>
+                            </button> */}
                             <label htmlFor='icon' className="cursor-pointer text-sm hover:text-primary">
-                              Update
+                              {t("Update")}
                             </label>
                           </span>
                         </div>
@@ -325,8 +383,8 @@ const Settings = () => {
                             </svg>
                           </span>
                           <p>
-                            <span className="text-primary">Click to upload</span> or
-                            drag and drop
+                            <span className="text-primary">{t("Click to upload")} </span> 
+                            {t("or drag and drop")}
                           </p>
                           <p className="mt-1.5">SVG, PNG, JPG or GIF</p>
                           <p>(max, 800 X 800px)</p>
@@ -343,7 +401,7 @@ const Settings = () => {
                       className="mb-3 block text-sm font-medium text-black dark:text-white"
                       htmlFor="bio"
                     >
-                      Meta Description
+                      {t("Meta Description")}
                     </label>
                     <div className="relative">
                       <span className="absolute left-4.5 top-4">
@@ -382,7 +440,7 @@ const Settings = () => {
                         name="meta_description"
                         id="bio"
                         rows={6}
-                        placeholder="Write your bio here"
+                        placeholder={t("Write your site description here")}
                         onChange={handleChange}
                         value={state.meta_description}
                       ></textarea>
@@ -394,13 +452,13 @@ const Settings = () => {
                       className="flex justify-center rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white"
                       type="button"
                     >
-                      Cancel
+                      {t("Cancel")}
                     </button>
                     <button
                       className="flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90"
                       type="submit"
                     >
-                      Save
+                      {t("Save")}
                     </button>
                   </div>
                 </form>
@@ -414,4 +472,4 @@ const Settings = () => {
   );
 };
 
-export default Settings;
+export default Edit;

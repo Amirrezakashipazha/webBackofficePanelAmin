@@ -4,9 +4,11 @@ import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 import LogoDark from '../../images/logo/logo-dark.svg';
 import Logo from '../../images/logo/logo.svg';
 import DefaultLayout from '../../layout/DefaultLayout';
+import { useTranslation } from 'react-i18next';
 
 const SignUp: React.FC = () => {
-  return (
+    const { t } = useTranslation();
+    return (
     <DefaultLayout>
       <Breadcrumb pageName="Sign Up" />
 

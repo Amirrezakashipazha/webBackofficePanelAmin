@@ -4,9 +4,11 @@ import SelectGroupOne from '../../components/Forms/SelectGroup/SelectGroupOne';
 import { useEffect, useRef, useState } from 'react';
 import useAxios from "../../hooks/useAxios";
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from "react-i18next";
 // import ImageZoom from "react-image-zooom";
 
 const Create = () => {
+  const { t,i18n } = useTranslation();
 
 
   const navigate = useNavigate();
@@ -100,7 +102,7 @@ const Create = () => {
 
   return (
     <DefaultLayout>
-      <Breadcrumb pageName="Create" parentPageName="users" location={true} />
+      <Breadcrumb pageName={t("Create")} parentPageName={t("Users")} parentPageUrl={"users"} location={true} />
       {/* <div className="demo-gallery">
         <ImageZoom className="gallery-img" src="https://picsum.photos/seed/006/1920/1080" alt="A image to apply the ImageZoom plugin" zoom="300" />
       </div> */}
@@ -118,44 +120,72 @@ const Create = () => {
                   <div className="mb-4.5 flex flex-col gap-6 xl:flex-row">
                     <div className="w-full xl:w-1/2">
                       <label className="mb-2.5 block text-black dark:text-white">
-                        Username <span className="text-meta-1">*</span>
+                        {t('Username')} <span className="text-meta-1">*</span>
                       </label>
                       <input
                         name="username"
                         value={state.username}
                         onChange={handleChange}
-                        title="User name"
+                        title="username"
                         type="text"
-                        placeholder="Enter your first name"
+                        placeholder={t("Enter Your name")}
                         className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                       />
                     </div>
 
                     <div className="w-full xl:w-1/2">
                       <label className="mb-2.5 block text-black dark:text-white">
-                        Password <span className="text-meta-1">*</span>
+                        {t('Password')} <span className="text-meta-1">*</span>
                       </label>
                       <input
                         name="password" value={state.password}
                         onChange={handleChange}
                         type="password"
-                        placeholder="Enter password"
+                        placeholder={t("Enter Your password")}
                         className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                       />
                     </div>
                   </div>
-
                   <div className="mb-4.5 flex flex-col gap-6 xl:flex-row">
                     <div className="w-full xl:w-1/2">
                       <label className="mb-2.5 block text-black dark:text-white">
-                        Email <span className="text-meta-1">*</span>
+                        {t("phone")} <span className="text-meta-1">*</span>
+                      </label>
+                      <input
+                        name="phone"
+                        value={state.phone}
+                        onChange={handleChange}
+                        title="User name"
+                        type="text"
+                        placeholder={t("Enter your phone number")}
+                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      />
+                    </div>
+
+                    <div className="w-full xl:w-1/2">
+                      <label className="mb-2.5 block text-black dark:text-white">
+                        {t('address')} <span className="text-meta-1">*</span>
+                      </label>
+                      <input
+                        name="address" value={state.address}
+                        onChange={handleChange}
+                        type="text"
+                        placeholder={t("Enter Your address")}
+                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      />
+                    </div>
+                  </div>
+                  <div className="mb-4.5 flex flex-col gap-6 xl:flex-row">
+                    <div className="w-full xl:w-1/2">
+                      <label className="mb-2.5 block text-black dark:text-white">
+                        {t("Email")} <span className="text-meta-1">*</span>
                       </label>
                       <input
                         name="email" value={state.email}
                         onChange={handleChange}
                         title="Email"
                         type="email"
-                        placeholder="Enter your email address"
+                        placeholder={t("Enter your email")}
                         className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                       />
                     </div>
@@ -164,7 +194,7 @@ const Create = () => {
 
                       <div className="mb-4.5">
                         <label className="mb-2.5 block text-black dark:text-white">
-                          status
+                          {t("Status")}
                         </label>
 
                         <div className="relative z-20 bg-transparent dark:bg-form-input">
@@ -176,15 +206,15 @@ const Create = () => {
                           >
 
                             <option value="active" className="text-body dark:text-bodydark">
-                              active
+                              {t("active")}
                             </option>
                             <option value="inactive" className="text-body dark:text-bodydark">
-                              inactive
+                              {t("inactive")}
                             </option>
 
                           </select>
 
-                          <span className="absolute top-1/2 right-4 z-30 -translate-y-1/2">
+                          <span className={`absolute top-1/2 ${i18n.language==="fa"?"left-4":"right-4"} z-30 -translate-y-1/2`}>
                             <svg
                               className="fill-current"
                               width="24"
@@ -210,7 +240,7 @@ const Create = () => {
                   <div className="mb-4.5 flex flex-col gap-6 xl:flex-row">
                     <div className="w-full xl:w-1/2">
                       <label className="mb-3 block text-black dark:text-white">
-                        Attach file
+                        {t("Attach file")}
                       </label>
                       <input
                         title="file"
@@ -218,13 +248,13 @@ const Create = () => {
                         value={selectedAvatar}
                         name="avatar"
                         onChange={HandleChangeAvatar}
-                        className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
+                        className={`w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent outline-none transition ${i18n.language==="fa"?"file:ml-5":"file:mr-5"} file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary`}
                       />
                     </div>
                   </div>
 
                   <button type="submit" className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90">
-                    Submit
+                    {t("Submit")}
                   </button>
                 </div>
               </form>
