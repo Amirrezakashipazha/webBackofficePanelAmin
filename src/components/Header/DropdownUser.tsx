@@ -3,15 +3,15 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import UserOne from '../../images/user/user-01.png';
 import useAxios from '../../hooks/useAxios';
-import { useResponse } from '../../ResponseContext';
 import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
 const DropdownUser = () => {
-    const { t } = useTranslation();
-    const { response:role, setResponse:setRole } = useResponse();
+    const { t ,i18n} = useTranslation();
+  const panel = useSelector((state) => state.panel);
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   
-  const { response:responseContext, setResponse } = useResponse();
+  // const { response:responseContext, setResponse } = useResponse();
 
   const trigger = useRef<any>(null);
   const dropdown = useRef<any>(null);
@@ -46,7 +46,7 @@ const DropdownUser = () => {
   const { get, response, error, loading: loadingIsadmin } = useAxios();
 
   const HandleLogOut = () => {
-    get(`http://localhost:3000/api/auth/admin/logout`);
+    get(`${import.meta.env.VITE_API_URL}auth/admin/logout`);
     navigate('/auth/signin')
   }
   return (
@@ -59,16 +59,16 @@ const DropdownUser = () => {
       >
         <span className="hidden text-right lg:block">
           <span className="block text-sm font-medium text-black dark:text-white">
-            {responseContext?.user?.username}
+            {panel?.user?.username}
           </span>
           <span className="block text-xs">
-          {responseContext?.user?.role}
+          {panel?.user?.role}
 
           </span>
         </span>
 
         <span className="h-12 w-12 rounded-full">
-          <img src={responseContext?.user?.avatar} alt="User" />
+          <img src={panel?.user?.avatar} alt="User" />
         </span>
 
         <svg
@@ -93,7 +93,7 @@ const DropdownUser = () => {
         ref={dropdown}
         onFocus={() => setDropdownOpen(true)}
         onBlur={() => setDropdownOpen(false)}
-        className={`absolute right-0 mt-4 flex w-62.5 flex-col rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark ${dropdownOpen === true ? 'block' : 'hidden'
+        className={`absolute ${ i18n.language==="fa"?"left-0":"right-0"} mt-4 flex w-62.5 flex-col rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark ${dropdownOpen === true ? 'block' : 'hidden'
           }`}
       >
         <ul className="flex flex-col gap-5 border-b border-stroke px-6 py-7.5 dark:border-strokedark">
@@ -123,7 +123,7 @@ const DropdownUser = () => {
             </Link>
           </li>
          
-          {role.user?.role==="super-admin"&&<li>
+          {panel.user?.role==="super-admin"&&<li>
             <Link
               to="/settings"
               className="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"

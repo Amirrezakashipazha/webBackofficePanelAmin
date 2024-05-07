@@ -13,7 +13,7 @@ const SelectStatus = ({ status, id ,table,onStatusChangeSuccess }) => {
     const HandleChangeSelectStatus = async (e) => {
         setSelectedOptionStatus(e.target.value);
         try {
-            await patch(`http://localhost:3000/api/${table}/${id}`, { status: e.target.value });
+            await patch(`${import.meta.env.VITE_API_URL}${table}/${id}`, { status: e.target.value });
             if (onStatusChangeSuccess) {
                 onStatusChangeSuccess();
             }
@@ -30,7 +30,7 @@ const SelectStatus = ({ status, id ,table,onStatusChangeSuccess }) => {
             title="Select status"
             value={selectedOptionStatus}
             onChange={HandleChangeSelectStatus}
-            className={`relative w-[115px] z-20 appearance-none rounded border border-stroke bg-transparent py-2 px-4 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary
+            className={`relative  z-20 appearance-none rounded border border-stroke bg-transparent py-2 px-4 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary
                 ${selectedOptionStatus === 'in progress' ? 'text-warning' : selectedOptionStatus === 'delivered' ? 'text-success' : 'text-danger'}`
             }
         >

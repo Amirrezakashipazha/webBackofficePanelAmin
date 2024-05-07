@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
+import 'flowbite/dist/flowbite.css';
 
 import Loader from './common/Loader';
 import PageTitle from './components/PageTitle';
@@ -28,24 +29,33 @@ import Orders from './pages/Orders/orders';
 import Sale from './pages/Sale/sale';
 import { useNavigate } from 'react-router-dom';
 import useAxios from './hooks/useAxios';
-import { useResponse } from './ResponseContext';
+
 import AccountSetting from './pages/accountSetting/accountSetting';
 import Admins from './pages/admins/admins';
 import CreateAdmins from './pages/admins/Create';
 import EditAdmins from './pages/admins/Edit';
 import getDirection from './utils/GetDirection';
 import { useTranslation } from 'react-i18next';
-
+import { useDispatch, useSelector } from "react-redux";
+import { setAdmins, setCategories, setNotificatin, setOrders, setProducts, setSale, setSetting, setUser, setUsers } from './store';
+import NotFound from './pages/404';
+// import dotenv from 'dotenv';
 
 function App() {
+  const panel = useSelector((state) => state.panel);
+  const Dispatch = useDispatch();
 
-  const { response: responseContext, setResponse } = useResponse();
-  console.log(responseContext);
+  const { t, i18n } = useTranslation();
+
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(true);
   const { pathname } = useLocation();
   const { get, response, error, loading: loadingIsadmin } = useAxios();
   const { get: getsetting, response: responsesetting, error: errorsetting, loading: loadingsetting } = useAxios();
+  const { get: getAllData, response: responseAll, error: errorAll, loading: loadingAll } = useAxios();
+  const { get: getOrder, response: responseOrder, error: errorOrder, loading: loadingOrder } = useAxios();
+
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
@@ -53,50 +63,101 @@ function App() {
   useEffect(() => {
     setTimeout(() => setLoading(false), 1000);
   }, []);
-  console.log(responseContext);
+
 
   useEffect(() => {
     const checkAdminStatus = async () => {
-      await get(`http://localhost:3000/api/auth/admin/isLoggedin`);
+      await get(`${import.meta.env.VITE_API_URL}auth/admin/isLoggedin`);
     };
     checkAdminStatus();
 
     const getSetting = async () => {
-      await getsetting(`http://localhost:3000/api/setting`);
+      await getsetting(`${import.meta.env.VITE_API_URL}setting`);
 
     };
     getSetting();
+
+    const getAll = async () => {
+      await getAllData(`${import.meta.env.VITE_API_URL}all`);
+    };
+    getAll();
   }, [navigate]);
 
- 
+  useEffect(() => {
+    Dispatch(setAdmins(responseAll?.admins))
+    Dispatch(setCategories(responseAll?.categories))
+    // Dispatch(setOrders(responseAll?.orders))
+    Dispatch(setProducts(responseAll?.products))
+    Dispatch(setSale(responseAll?.sale))
+    Dispatch(setUsers(responseAll?.users))
+  }, [responseAll])
+
+  useEffect(() => {
+    console.log(panel);
+  }, [panel])
 
   useEffect(() => {
 
     if (response?.status === 'error') {
       navigate('/auth/signin');
     } else {
-      setResponse(prev => ({ ...prev, user: response?.user }));
+      // setResponse(prev => ({ ...prev, user: response?.user }))
+      if (response?.user) {
+        Dispatch(setUser(response?.user))
+      }
     }
 
     if (responsesetting) {
-      setResponse(prev => ({ ...prev, setting: responsesetting[0] }));
+      // setResponse(prev => ({ ...prev, setting: responsesetting[0] }));
+      Dispatch(setSetting(responsesetting[0]))
     }
 
     const link = document.querySelector("link[rel*='icon']");
 
     if (link) {
-      link.href = responseContext?.setting?.icon;
+      link.href = panel?.setting?.icon;
     }
     const meta_description = document.querySelector("meta[name='description']");
 
     if (meta_description) {
-      meta_description.content = responseContext?.setting?.meta_description;
+      meta_description.content = panel?.setting?.meta_description;
     }
 
     if (response || error) {
       setLoading(false);
     }
   }, [response, error]);
+
+  useEffect(() => {
+    const fetchNewOrders = () => {
+      getOrder(`${import.meta.env.VITE_API_URL}order`);
+    };
+
+    const interval = setInterval(fetchNewOrders, 5000); 
+    return () => clearInterval(interval);
+  }, []);
+
+  let oldOrderIds
+  
+    ;
+
+
+
+  useEffect(() => {
+    oldOrderIds = panel?.orders?.map(order => order.id) || [];
+    Dispatch(setNotificatin(responseOrder?.data.filter(order => !oldOrderIds.includes(order.id))))
+   console.log(oldOrderIds);
+   console.log(responseOrder?.data);
+  }, [responseOrder])
+
+
+  useEffect(() => {
+    if (i18n.language === "fa") {
+      document.querySelector("html")?.setAttribute("lang", "fa")
+    } else {
+      document.querySelector("html")?.setAttribute("lang", "en")
+    }
+  }, [i18n.language])
 
   // useEffect(() => {
   //   const handleRightClick = event => {
@@ -335,6 +396,15 @@ function App() {
             <>
               <PageTitle title="Signup | TailAdmin - Tailwind CSS Admin Dashboard Template" />
               <SignUp />
+            </>
+          }
+        />
+        <Route
+          path="*"
+          element={
+            <>
+              <PageTitle title="Signup | TailAdmin - Tailwind CSS Admin Dashboard Template" />
+              <NotFound />
             </>
           }
         />

@@ -40,7 +40,7 @@ const SelectImage = ({ image, close, id, onFileSelect }: { image: string, close:
             {imageUrl ? (
                 <img src={imageUrl} alt="" className="h-full w-full object-cover" />
             ) : (
-                <p>{t("Select an image")}</p>
+                <p className="text-center">{t("Select an image")}</p>
             )}
 
 

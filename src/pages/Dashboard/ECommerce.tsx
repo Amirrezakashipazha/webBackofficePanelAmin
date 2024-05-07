@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import CardDataStats from '../../components/CardDataStats';
 import ChartOne from '../../components/Charts/ChartOne';
 import ChartThree from '../../components/Charts/ChartThree';
@@ -20,16 +20,26 @@ const ECommerce: React.FC = () => {
   const { get, response, error, loading } = useAxios();
   const { get:getProducts, response:responseProducts, error:errorProducts, loading:loadingProducts } = useAxios();
   const { get:getTotalSale, response:responseTotalSale, error:errorTotalSale, loading:loadingTotalSale } = useAxios();
+  const { get:getView, response:responseView, error:errorView, loading:loadingView } = useAxios();
 
+  const [totalSale,setTotalSale]=useState()
   useEffect(() => {
-    get(`http://localhost:3000/api/users?limit=1`, { withCredentials: true });
-    getProducts(`http://localhost:3000/api/products?limit=1`, { withCredentials: true });
-    getTotalSale(`http://localhost:3000/api/sale?limit=10000000`, { withCredentials: true });
+    get(`${import.meta.env.VITE_API_URL}users?limit=1`, { withCredentials: true });
+    getProducts(`${import.meta.env.VITE_API_URL}products?limit=1`, { withCredentials: true });
+    getTotalSale(`${import.meta.env.VITE_API_URL}sale?limit=10000000`, { withCredentials: true });
+    getView(`${import.meta.env.VITE_API_URL}view-count`, { withCredentials: true });
   }, []);
+  useEffect(() => {
+    if (responseTotalSale?.data) {
+      const total = responseTotalSale.data.reduce((acc, sale) => acc + sale.product.total_price, 0);
+      setTotalSale(total);
+    }
+  }, [responseTotalSale]);
+
   return (
     <DefaultLayout>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
-        <CardDataStats title={t("Total views")} total={`${convertNumberFormat(453,i18n.language)}K`} rate="0.43%" levelUp>
+        <CardDataStats title={t("Total views")} total={`${convertNumberFormat(responseView?responseView:0,i18n.language)}`} rate="0.43%" levelUp>
           <svg
             className="fill-primary dark:fill-white"
             width="22"
@@ -48,7 +58,7 @@ const ECommerce: React.FC = () => {
             />
           </svg>
         </CardDataStats>
-        <CardDataStats title={t("Total Profit")} total={`$${convertNumberFormat(responseTotalSale?.totalSale,i18n.language)}`} rate="4.35%" levelUp>
+        <CardDataStats title={t("Total Profit")} total={`$${convertNumberFormat(totalSale,i18n.language)}`} rate="4.35%" levelUp>
           <svg
             className="fill-primary dark:fill-white"
             width="20"

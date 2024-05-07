@@ -7,13 +7,18 @@ import { useNavigate } from 'react-router-dom';
 import SelectImage from "../../components/Forms/selectImage";
 import { v4 as uuidv4 } from "uuid";
 import { useTranslation } from "react-i18next";
+import SwitcherThree from "../../components/Switchers/SwitcherThree";
+import { useCollapse } from 'react-collapsed'
+import CheckboxTwo from "../../components/Checkboxes/CheckboxTwo";
+import MultiSelect from "../../components/Forms/MultiSelect";
+import { ChromePicker  } from 'react-color';
 
 const CreateProduct = () => {
     const { t, i18n } = useTranslation();
     const { get: getCategory, response: responseCategory, error: errorCategory, loading: loadingCategory } = useAxios();
 
     useEffect(() => {
-        getCategory('http://localhost:3000/api/category?limit=1000')
+        getCategory(`${import.meta.env.VITE_API_URL}category?limit=1000`)
     }, [])
 
 
@@ -123,7 +128,7 @@ const CreateProduct = () => {
             formData.append(`images`, file); // Change this to match the backend field name
         });
         try {
-            await post('http://localhost:3000/api/products', formData, {
+            await post(`${import.meta.env.VITE_API_URL}products`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -148,9 +153,38 @@ const CreateProduct = () => {
         setImages(newImages);
         setSelectedFiles((prevFiles) => prevFiles.filter((_, index) => images[index].id !== id));
     };
+    const [enabled, setEnabled] = useState(false);
+    const { getCollapseProps, getToggleProps, isExpanded } = useCollapse({
+        isExpanded: enabled, // Control the expanded state with the `enabled` state
+    });
+    
 
+    const handleToggle = () => {
+        setEnabled(prev => !prev); // Toggle both the checkbox and the collapse
+    };
+    const [background, setBackground] = useState("#000000");
+    const [colorArr, setColorArr] = useState([]);
+    // let colorArr=[]
+    const handleChangeColorPicker = (color) => {
+        setBackground(color.hex)
 
+    }
+    const handleChangeColorPickerComplete = (action) => {
+        // colorArr.push(background)
+        action ==="confirm"?
+        setColorArr((oldArray) => [...oldArray, background])
+        :
+        setColorArr(oldArray => oldArray.slice(0, -1));
+    }
+    const [sizeIsChecked, setSizeIsChecked] = useState(false);
+    const [colorIsChecked, setColorIsChecked] = useState(false);
 
+    const { getCollapseProps: getSizeCollapseProps, getToggleProps: getSizeToggleProps } = useCollapse({
+        isExpanded: sizeIsChecked
+    });
+    const { getCollapseProps: getColorCollapseProps, getToggleProps: getColorToggleProps } = useCollapse({
+        isExpanded: colorIsChecked
+    });
 
     if (loading) return <p>Loading...</p>;
     if (error) return <p>Error: {error}</p>;
@@ -158,6 +192,11 @@ const CreateProduct = () => {
     return (
         <DefaultLayout>
             <Breadcrumb pageName={t("Create")} parentPageName={t("Products")} parentPageUrl="products" location={true} />
+
+
+
+
+
 
             <div className="flex flex-col gap-10">
 
@@ -176,7 +215,7 @@ const CreateProduct = () => {
                                             </label>
 
 
-                                            <button type="button" onClick={addImageComponent} className="flex w-[100px] justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90">
+                                            <button type="button" onClick={addImageComponent} className="text-nowrap flex w-[100px] justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90">
                                                 {t("Add")}
                                             </button>
                                             <div className="w-full flex flex-wrap gap-5">
@@ -362,7 +401,72 @@ const CreateProduct = () => {
                                             </div>
                                         </div>
                                     </div>
+                                    <div className="mb-4.5 flex flex-col gap-6 xl:flex-row">
 
+                                        <div className="w-full xl:w-1/2">
+                                            <div className="mb-4.5">
+                                                <label className="mb-2.5 block text-black dark:text-white">
+                                                    {t("Number Of Product")} <span className="text-meta-1">*</span>
+                                                </label>
+                                                <input
+                                                    name="number"
+                                                    value={state.number}
+                                                    onChange={handleChange}
+                                                    type="number"
+                                                    placeholder={t("Enter Number of Product")}
+                                                    className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                                                />
+
+                                            </div>
+                                        </div>
+
+                                        <div className="w-full xl:w-1/2">
+                                            <div className="mb-4.5">
+                                                <label className="flex items-center mb-2.5 text-black dark:text-white">
+                                                    <p className="mr-3">{t("Details")}</p>
+                                                    <SwitcherThree enabled={enabled} setEnabled={handleToggle} />
+                                                </label>
+
+                                                <div>
+                                                    <section {...getCollapseProps()}>
+                                                        <div className="mb-4">
+                                                            <CheckboxTwo isChecked={sizeIsChecked} setIsChecked={()=>setSizeIsChecked(prev=>!prev)} content="size" />
+                                                            <section  {...getSizeCollapseProps()}>
+
+                                                            <div className="">
+                                                                <MultiSelect id="multiSelect" />
+
+                                                            </div>
+                                                            </section>
+                                                        </div>
+                                                        <div className="">
+                                                            <CheckboxTwo isChecked={colorIsChecked} setIsChecked={()=>setColorIsChecked(prev=>!prev)} content="color" />
+                                                            
+                                                            <section  {...getColorCollapseProps()}>
+                                                            <div className="w-[225px] my-2" dir="ltr">
+                                                                <ChromePicker className="w-full" color={background}
+                                                                    onChange={handleChangeColorPicker} />
+                                                                <div className="w-full flex">
+                                                                <button className="text-black border-t w-full mt-[-2px] bg-white p-2" type="button" onClick={()=>handleChangeColorPickerComplete("confirm")}>{t("Confirm")}</button>
+                                                                <button className="text-black border-t w-full mt-[-2px] bg-white p-2" type="button" onClick={()=>handleChangeColorPickerComplete("undo")}>{t("Undo")}</button>
+
+                                                                </div>
+                                                            </div>
+                                                            <div className="flex flex-wrap gap-1 w-[225px]">
+
+                                                            {colorArr.map((color) => 
+                                                            
+                                                            <div className="w-5 h-5 rounded-full"style={{background:color}}></div>
+                                                            )}
+                                                            </div>
+                                                            </section>
+                                                        </div>
+                                                    </section>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div className="mb-4.5 flex flex-col gap-6 xl:flex-row">
                                         <div className="w-full">
                                             <label className="mb-2.5 block text-black dark:text-white">

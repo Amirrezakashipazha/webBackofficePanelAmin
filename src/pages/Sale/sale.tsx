@@ -8,6 +8,9 @@ import { Pagination } from 'flowbite-react';
 import SelectStatus from '../Orders/selectStatus';
 import { useTranslation } from 'react-i18next';
 import convertNumberFormat from '../../utils/ConvertNum';
+import useDebounce from '../../hooks/useDebounce';
+import SearchInput from '../../components/SearchInput';
+import DropDownFilter from '../../components/Dropdowns/DropDownFilter';
 
 
 const Sale = () => {
@@ -19,22 +22,18 @@ const Sale = () => {
         setIsOptionSelected(true);
     };
 
-    const HandleChangeSelect = (e) => {
-        setSelectedOption(e.target.value);
+ 
+    const HandleChangeSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setSelectedOption(parseInt(e.target.value));
         changeTextColor();
-
-
-        // setState((prevState) => ({
-        //   ...prevState,
-        //   status: e.target.value,
-        // }));
     }
 
 
     const [currentPage, setCurrentPage] = useState(1);
 
     const onPageChange = (page: number) => {
-        get(`http://localhost:3000/api/sale?limit=${selectedOption}&page=${page}`);
+        const translatedSearch = translateStatus(search, i18n.language);
+        get(`${import.meta.env.VITE_API_URL}sale?limit=${selectedOption}&page=${page}&filter=${selectedItem.toLowerCase()}&value=${translatedSearch}`);
         setCurrentPage(page);
         console.log(response);
     }
@@ -47,7 +46,7 @@ const Sale = () => {
     const { del, response: responseDelete, error: errorDelete, loading: loadingDelete } = useAxios();
 
     useEffect(() => {
-        get('http://localhost:3000/api/sale?limit=2000&page=1');
+        get(`${import.meta.env.VITE_API_URL}sale?limit=2000&page=1`);
         // get(`${process.env.NEXT_PUBLIC_API_URL}users`);
     }, [responseDelete]);
 
@@ -72,7 +71,7 @@ const Sale = () => {
                     )
                     return true
                 }
-                del(`http://localhost:3000/api/sale/${id}`).then((res) => {
+                del(`${import.meta.env.VITE_API_URL}sale/${id}`).then((res) => {
                     setDeleted(!deleted);
                     console.log(res);
                     Swal.fire(
@@ -94,18 +93,41 @@ const Sale = () => {
     const [refreshData, setRefreshData] = useState(false);
 
 
+    
+
+
+    const [selectedItem, setSelectedItem] = useState("ProductName")
+
+
+
+    const [search, setSearch] = useState("");
+    const debouncedSearch = useDebounce(search, 700);
+
+    const statusTranslationMap: { [key: string]: string } = {
+        "کنسل شده": "canceled",
+        "درحال ارسال": "in progress",
+        "در حال ارسال": "in progress"
+    };
+    const translateStatus = (status: string, language: string) => {
+        if (language === "fa") {
+            return statusTranslationMap[status] || status;
+        }
+        return status;
+    };
     useEffect(() => {
         // Function to fetch data
+        const translatedSearch = translateStatus(search, i18n.language);
         const fetchData = async () => {
-            await get(`http://localhost:3000/api/sale?limit=${selectedOption}&page=${currentPage}`);
-            console.log(response?.data);
+            await get(`${import.meta.env.VITE_API_URL}sale?limit=${selectedOption}&page=${currentPage}&filter=${selectedItem.toLowerCase()}&value=${translatedSearch}`);
+            // console.log(response?.data);
             if (response && response.data.length === 0 && currentPage > 1) {
                 setCurrentPage(1); // or you can set it to the last available page if you can calculate that
             }
         };
 
         fetchData();
-    }, [refreshData, selectedOption, currentPage]);
+    }, [refreshData, selectedOption, currentPage, debouncedSearch, i18n.language, search, selectedItem]);
+
     const handleStatusChangeSuccess = () => {
         setRefreshData(prev => !prev); // Toggle the refreshData state to trigger re-fetch
         if (currentPage > 1 && response?.data?.length <= 1) {
@@ -114,12 +136,6 @@ const Sale = () => {
     };
 
 
-    if (loading)
-        return (
-            <DefaultLayout>
-                <p>Loading...</p>
-            </DefaultLayout>
-        );
     if (error) return <p>Error: {error}</p>;
     return (
         <DefaultLayout>
@@ -129,14 +145,13 @@ const Sale = () => {
 
                 <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
 
-                    {/* <div className="py-6 px-4 md:px-6 xl:px-7.5">
-                        <Link
-                            to="/categories/create"
-                            className="inline-flex items-center justify-center rounded-full bg-primary py-3 px-5 text-center font-medium text-white hover:bg-opacity-90 lg:px-6 xl:px-8"
-                        >
-                            Create
-                        </Link>
-                    </div> */}
+                    <div className="py-6 px-4 md:px-6 xl:px-7.5">
+                    <div className="w-full  md:w-125 flex items-center justify-between relative border border-stroke dark:border-strokedark">
+                            <SearchInput search={search} setSearch={setSearch} />
+                            <DropDownFilter items={["Id", "ProductName", "Price", "Username", "Date"]}
+                                selectedItem={selectedItem} setSelectedItem={setSelectedItem} />
+                        </div>
+                    </div>
                     <div className="max-w-full">
 
                         <div className="overflow-x-auto">
@@ -144,7 +159,10 @@ const Sale = () => {
                             <table className="w-full table-auto">
                                 <thead>
                                     <tr className="bg-gray-2 text-left dark:bg-meta-4">
-                                        <th className={`${i18n.language === "fa" && "text-start pl-4 pr-7"} min-w-[220px] py-4 pl-7 px-4 font-medium text-black dark:text-white xl:pl-11`}>
+                                        <th className={`${i18n.language === "fa" ? "text-start pl-4 pr-9" : "pr-4 pl-9"} min-w-[70px] py-4 font-medium text-black dark:text-white xl:pl-11`}>
+                                            {t("Id")}
+                                        </th>
+                                        <th className={`${i18n.language === "fa" && "text-start"} min-w-[140px] py-4 px-4 font-medium text-black dark:text-white`}>
                                             {t("Product Name")}
                                         </th>
                                         <th className={`${i18n.language === "fa" && "text-start"} min-w-[150px] py-4 px-4 font-medium text-black dark:text-white`}>
@@ -169,8 +187,13 @@ const Sale = () => {
 
                                     {response && response.data.map((item, key) => (
                                         <tr key={key} className='border-b border-[#eee] dark:border-strokedark'>
+                                            <td className={`py-5 px-4 ${i18n.language === "fa" ? "pr-9" : "pl-9"} xl:pl-11`}>
+                                                <p className="text-black dark:text-white">
+                                                    {convertNumberFormat(item.id, i18n.language)}
+                                                </p>
+                                            </td>
                                             <td className="">
-                                                <Link to={`/products/edit/${item.product.id}`} className="flex items-center py-5 px-4 pl-7 ">
+                                                <Link to={`/products/edit/${item.product.id}`} className="flex items-center py-5 px-4">
                                                     <div className={`flex-shrink-0 w-[58px] h-[58px] ${i18n.language === "fa" ? "ml-3" : "mr-3"}`}>
                                                         <img src={JSON.parse(item.product.image)[0]} alt="Brand" className='w-full h-full rounded-md object-cover' />
                                                     </div>
@@ -181,14 +204,14 @@ const Sale = () => {
                                             </td>
                                             <td className="py-5 px-4">
                                                 <p className="text-black dark:text-white">
-                                                    ${item.product.total_price}
+                                                    ${convertNumberFormat(item.product.total_price, i18n.language)}
                                                 </p>
                                             </td>
                                             <td className=" ">
 
                                                 <Link to={`/users/edit/${item.user.id}`} className="flex items-center py-5 px-4 pl-4 ">
-                                                <div className={`flex-shrink-0 w-[48px] h-[48px] ${i18n.language === "fa" ? "ml-3" : "mr-3"}`}>
-                                                         <img src={item.user.avatar} alt="Brand" className='w-full h-full rounded-full object-cover' />
+                                                    <div className={`flex-shrink-0 w-[48px] h-[48px] ${i18n.language === "fa" ? "ml-3" : "mr-3"}`}>
+                                                        <img src={item.user.avatar} alt="Brand" className='w-full h-full rounded-full object-cover' />
                                                     </div>
                                                     <h5 className="font-medium text-black dark:text-white">
                                                         {item.user.name}
@@ -201,6 +224,7 @@ const Sale = () => {
                                                 </p>
                                             </td>
                                             <td className="py-5 px-4">
+                                                {console.log(item)}
                                                 <SelectStatus status={item.status} id={item.id} table={"sale"} onStatusChangeSuccess={handleStatusChangeSuccess} />
 
                                             </td>
@@ -244,12 +268,14 @@ const Sale = () => {
                         </div>
                         {response?.data?.length === 0 && (
 
-                            <p className="text-title-md2 font-semibold text-black dark:text-white my-20 mx-auto w-fit">No Data !</p>
+                            <p className="text-title-md2 font-semibold text-black dark:text-white my-20 mx-auto w-fit">{t("No Data !")}</p>
 
                         )}
                         <div className="flex flex-col md:flex-row justify-between items-center m-3">
                             <div className="flex overflow-x-auto sm:justify-start flowbite mb-5 md:mb-0 overflow-auto max-w-full">
-                                {response?.data?.length == 0 || response?.pageCount != 1 && <Pagination currentPage={currentPage} totalPages={response?.pageCount || 0} onPageChange={onPageChange} showIcons />}
+                                {response?.data?.length == 0 || response?.pageCount != 1 && <Pagination dir='ltr' currentPage={currentPage} totalPages={response?.pageCount || 0} onPageChange={onPageChange} showIcons
+                                    previousLabel=""
+                                    nextLabel="" />}
                             </div>
                             {!response?.data?.length == 0 && <div className="relative z-20 bg-transparent dark:bg-form-input">
                                 <select
@@ -278,25 +304,7 @@ const Sale = () => {
                                     </option>
                                 </select>
 
-                                <span className={`absolute top-1/2 ${i18n.language === "fa" ? "left-4" : "right-4"} z-30 -translate-y-1/2`}>
-                                    <svg
-                                        className="fill-current"
-                                        width="24"
-                                        height="24"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                        <g opacity="0.8">
-                                            <path
-                                                fillRule="evenodd"
-                                                clipRule="evenodd"
-                                                d="M5.29289 8.29289C5.68342 7.90237 6.31658 7.90237 6.70711 8.29289L12 13.5858L17.2929 8.29289C17.6834 7.90237 18.3166 7.90237 18.7071 8.29289C19.0976 8.68342 19.0976 9.31658 18.7071 9.70711L12.7071 15.7071C12.3166 16.0976 11.6834 16.0976 11.2929 15.7071L5.29289 9.70711C4.90237 9.31658 4.90237 8.68342 5.29289 8.29289Z"
-                                                fill=""
-                                            ></path>
-                                        </g>
-                                    </svg>
-                                </span>
+                               
                             </div>}
                         </div>
                     </div>

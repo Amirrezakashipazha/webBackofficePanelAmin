@@ -148,7 +148,7 @@ const ChartOne: React.FC = () => {
   const { get, response } = useAxios();
 
   useEffect(() => {
-    get(`http://localhost:3000/api/request-count`);
+    get(`${import.meta.env.VITE_API_URL}request-count`);
   }, []);
   
   useEffect(() => {
@@ -183,13 +183,13 @@ const ChartOne: React.FC = () => {
               <span className="block h-2.5 w-full max-w-2.5 rounded-full bg-primary"></span>
             </span>
             <div className="w-full">
-              <p className="font-semibold text-primary">{t("Total Request")}</p>
+              <p className="font-semibold text-primary">{t("Daily Request")}</p>
               <p className="text-sm font-medium">{state?.totalRequestsToday}</p>
             </div>
           </div>
 
         </div>
-        <div className="flex w-full max-w-45 justify-end">
+        {/* <div className="flex w-full max-w-45 justify-end">
           <div className="inline-flex items-center rounded-md bg-whiter p-1.5 dark:bg-meta-4">
             <button className="rounded bg-white py-1 px-3 text-xs font-medium text-black shadow-card hover:bg-white hover:shadow-card dark:bg-boxdark dark:text-white dark:hover:bg-boxdark">
               {t("Day")}
@@ -201,7 +201,7 @@ const ChartOne: React.FC = () => {
               {t("Month")}
             </button>
           </div>
-        </div>
+        </div> */}
       </div>
 
       <div>

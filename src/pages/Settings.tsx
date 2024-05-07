@@ -4,13 +4,14 @@ import SelectGroupOne from './../components/Forms/SelectGroup/SelectGroupOne';
 import { useEffect, useState } from 'react';
 import useAxios from "./../hooks/useAxios";
 import { useNavigate, useParams } from 'react-router-dom';
-import { useResponse } from "../ResponseContext";
+
 import { useTranslation } from "react-i18next";
+import { useSelector } from 'react-redux';
 
 const Edit = () => {
   const { t } = useTranslation();
+  const panel = useSelector((state) => state.panel);
 
-  const { response:role, setResponse:setRole } = useResponse();
 
   const { id } = useParams();
 
@@ -35,7 +36,7 @@ const Edit = () => {
   });
 
   useEffect(() => {
-    getSetting("http://localhost:3000/api/setting")
+    getSetting(`${import.meta.env.VITE_API_URL}setting`)
   }, [])
   useEffect(() => {
     if (responseSetting && responseSetting[0]) {
@@ -115,7 +116,7 @@ const Edit = () => {
 
 
     try {
-      await patch(`http://localhost:3000/api/setting`, formData, {
+      await patch(`${import.meta.env.VITE_API_URL}setting`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -144,7 +145,7 @@ const Edit = () => {
   };
 
 
-  if(role.user?.role!=="super-admin")return <p>403</p>;
+  if(panel.user?.role!=="super-admin")return <p>403</p>;
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
 
@@ -280,7 +281,7 @@ const Edit = () => {
                           onChange={HandleChangeLogo}
                           className="absolute inset-0 z-50 m-0 h-full w-full cursor-pointer p-0 opacity-0 outline-none"
                         />
-                        <div className="flex flex-col items-center justify-center space-y-3">
+                        <div className="flex flex-col items-center justify-center space-y-3 text-center">
                           <span className="flex h-10 w-10 items-center justify-center rounded-full border border-stroke bg-white dark:border-strokedark dark:bg-boxdark">
                             <svg
                               width="16"
@@ -353,7 +354,7 @@ const Edit = () => {
                           onChange={HandleChangeIcon}
                           className="absolute inset-0 z-50 m-0 h-full w-full cursor-pointer p-0 opacity-0 outline-none"
                         />
-                        <div className="flex flex-col items-center justify-center space-y-3">
+                        <div className="flex flex-col items-center justify-center space-y-3 text-center">
                           <span className="flex h-10 w-10 items-center justify-center rounded-full border border-stroke bg-white dark:border-strokedark dark:bg-boxdark">
                             <svg
                               width="16"

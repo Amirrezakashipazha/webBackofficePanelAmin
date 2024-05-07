@@ -1,17 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
-import LogoDark from '../../images/logo/logo-dark.svg';
-import Logo from '../../images/logo/logo.svg';
-import DefaultLayout from '../../layout/DefaultLayout';
+import React, { FormEvent, useEffect, useState } from 'react';
 import useAxios from '../../hooks/useAxios';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import useColorMode from '../../hooks/useColorMode';
 
 const SignIn: React.FC = () => {
 
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const { post, response, error, loading } = useAxios();
   const [state, setState] = useState({
@@ -22,14 +18,14 @@ const SignIn: React.FC = () => {
   });
   ;
 
-  const HandleSubmitLogin = async (event) => {
+  const HandleSubmitLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     // console.log(event.target);
 
 
     try {
-      
-       await post('http://localhost:3000/api/auth/admin/login', {
+
+      await post(`${import.meta.env.VITE_API_URL}auth/admin/login`, {
         username: state.username,
         password: state.password,
       });
@@ -37,11 +33,19 @@ const SignIn: React.FC = () => {
       console.error('Error auth:', err);
     }
   }
-  useEffect(()=>{
-    if (response?.status===200) {
+  useEffect(() => {
+    if (response?.status === 200) {
       navigate('/');
     }
-  },[response])
+  }, [response])
+
+  const [colorMode, setColorMode] = useColorMode();
+
+  useEffect(() => {
+    if (colorMode === "dark") {
+      document.querySelector('body')?.classList.add("dark")
+    }
+  }, [])
   return (
     // <DefaultLayout>
     // <Breadcrumb pageName="Sign In" />

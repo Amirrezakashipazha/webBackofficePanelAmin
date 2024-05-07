@@ -7,19 +7,10 @@ import useAxios from '../../hooks/useAxios';
 import { Pagination } from 'flowbite-react';
 import { useTranslation } from 'react-i18next';
 import convertNumberFormat from '../../utils/ConvertNum';
+import useDebounce from '../../hooks/useDebounce';
+import SearchInput from '../SearchInput';
+import DropDownFilter from '../Dropdowns/DropDownFilter';
 
-const productData: Product[] = [
-  {
-    id: 12651,
-    image: ProductOne,
-    name: 'Apple Watch ',
-    category: 'Electronics',
-    price: 180000,
-    discount: 0,
-    sold: 0,
-    status: "active"
-  },
-];
 
 const TableTwo = () => {
   const { t, i18n } = useTranslation();
@@ -46,7 +37,8 @@ const TableTwo = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const onPageChange = (page: number) => {
-    get(`http://localhost:3000/api/products?limit=${selectedOption}&page=${page}`);
+    const translatedSearch = translateStatus(search, i18n.language);
+    get(`${import.meta.env.VITE_API_URL}products?limit=${selectedOption}&page=${page}&filter=${selectedItem.toLowerCase()}&value=${translatedSearch}`);
     setCurrentPage(page);
     console.log(response);
   }
@@ -58,10 +50,7 @@ const TableTwo = () => {
   const { get, response, error, loading } = useAxios();
   const { del, response: responseDelete, error: errorDelete, loading: loadingDelete } = useAxios();
 
-  // useEffect(() => {
-  //   get('http://localhost:3000/api/users?limit=2&page=1');
-  //   // get(`${process.env.NEXT_PUBLIC_API_URL}users`);
-  // }, [responseDelete]);
+
 
 
 
@@ -74,11 +63,11 @@ const TableTwo = () => {
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
       confirmButtonText: t('Yes, delete it!'),
-      cancelButtonText:t("Cancel")
+      cancelButtonText: t("Cancel")
 
     }).then((result) => {
       if (result.isConfirmed) {
-        del(`http://localhost:3000/api/products/${id}`).then(() => {
+        del(`${import.meta.env.VITE_API_URL}products/${id}`).then(() => {
           setDeleted(!deleted);
           Swal.fire(
             t('Deleted!'),
@@ -96,29 +85,57 @@ const TableTwo = () => {
       }
     });
   };
+
+
+
+  const [selectedItem, setSelectedItem] = useState("Name")
+
+
+
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 700);
+
+  const statusTranslationMap: { [key: string]: string } = {
+    "فعال": "active",
+    "غیر فعال": "inactive",
+    "غیرفعال": "inactive"
+  };
+  const translateStatus = (status: string, language: string) => {
+    if (language === "fa") {
+      return statusTranslationMap[status] || status;
+    }
+    return status;
+  };
+
+
+
   useEffect(() => {
-    get(`http://localhost:3000/api/products?limit=${selectedOption}`);
-    console.log(response);
-  }, [deleted, selectedOption]);
+    const translatedSearch = translateStatus(search, i18n.language);
+    get(`${import.meta.env.VITE_API_URL}products?limit=${selectedOption}&filter=${selectedItem.toLowerCase()}&value=${translatedSearch}`);
+    // console.log(response);
+  }, [deleted, selectedOption, debouncedSearch, i18n.language, search, selectedItem]);
 
 
-
-
-
-  if (loading) return <p>Loading...</p>;
+  // if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
 
 
   return (
     <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
 
-      <div className="py-6 px-4 md:px-6 xl:px-7.5">
+      <div className="py-6 px-4 md:px-6 xl:px-7.5 flex flex-col md:flex-row items-center justify-between">
         <Link
           to="/products/create"
-          className="inline-flex items-center justify-center rounded-full bg-primary py-3 px-5 text-center font-medium text-white hover:bg-opacity-90 lg:px-6 xl:px-8"
+          className="mb-5 md:mb-0 inline-flex items-center justify-center rounded-full bg-primary py-3 px-5 text-center font-medium text-white hover:bg-opacity-90 lg:px-6 xl:px-8"
         >
-          {t("Create")}
+          {t('Create')}
         </Link>
+
+        <div className="w-full  md:w-125 flex items-center justify-between relative border border-stroke dark:border-strokedark">
+          <SearchInput search={search} setSearch={setSearch} />
+          <DropDownFilter items={["Id", "Name", "Category", "Discount", "TotalPrice", "Number", "Status"]}
+            selectedItem={selectedItem} setSelectedItem={setSelectedItem} />
+        </div>
       </div>
       <div className="max-w-full">
 
@@ -127,25 +144,31 @@ const TableTwo = () => {
           <table className="w-full table-auto">
             <thead>
               <tr className="bg-gray-2 text-left dark:bg-meta-4">
-                <th className={`${i18n.language === "fa" ? "text-start pl-4 pr-9" : "pr-4 pl-9"} min-w-[220px] py-4 font-medium text-black dark:text-white xl:pl-11`}>
+                <th className={`${i18n.language === "fa" ? "text-start pl-4 pr-9" : "pr-4 pl-9"} min-w-[70px] py-4 font-medium text-black dark:text-white xl:pl-11`}>
+                  {t("Id")}
+                </th>
+                <th className={`${i18n.language === "fa" && "text-start"} min-w-[140px] py-4 px-4 font-medium text-black dark:text-white`}>
                   {t("Name")}
                 </th>
-                <th className={`${i18n.language === "fa" && "text-start"} min-w-[150px] py-4 px-4 font-medium text-black dark:text-white`}>
+                <th className={`${i18n.language === "fa" && "text-start"} min-w-[140px] py-4 px-4 font-medium text-black dark:text-white`}>
                   {t("Category")}
                 </th>
-                {/* <th className={`${i18n.language === "fa" && "text-start"} min-w-[150px] py-4 px-4 font-medium text-black dark:text-white`}>
+                {/* <th className={`${i18n.language === "fa" && "text-start"} min-w-[140px] py-4 px-4 font-medium text-black dark:text-white`}>
                   {t("Sold")}
                 </th> */}
-                <th className={`${i18n.language === "fa" && "text-start"} min-w-[150px] py-4 px-4 font-medium text-black dark:text-white`}>
+                <th className={`${i18n.language === "fa" && "text-start"} min-w-[140px] py-4 px-4 font-medium text-black dark:text-white`}>
                   {t("Discount")}
                 </th>
-                <th className={`${i18n.language === "fa" && "text-start"} min-w-[150px] py-4 px-4 font-medium text-black dark:text-white`}>
+                <th className={`${i18n.language === "fa" && "text-start"} min-w-[140px] py-4 px-4 font-medium text-black dark:text-white`}>
                   {t("Total Price")}
                 </th>
-                <th className={`${i18n.language === "fa" && "text-start"} min-w-[150px] py-4 px-4 font-medium text-black dark:text-white`}>
+                <th className={`${i18n.language === "fa" && "text-start"} min-w-[140px] py-4 px-4 font-medium text-black dark:text-white`}>
+                  {t("Number")}
+                </th>
+                <th className={`${i18n.language === "fa" && "text-start"} min-w-[140px] py-4 px-4 font-medium text-black dark:text-white`}>
                   {t("Status")}
                 </th>
-                <th className={`${i18n.language === "fa" && "text-start"} min-w-[150px] py-4 px-4 font-medium text-black dark:text-white`}>
+                <th className={`${i18n.language === "fa" && "text-start"} min-w-[120px] py-4 px-4 font-medium text-black dark:text-white`}>
                   {t("Actions")}
                 </th>
               </tr>
@@ -155,7 +178,13 @@ const TableTwo = () => {
 
               {response && response.data.map((product, key) => (
                 <tr key={key} className='border-b border-[#eee] dark:border-strokedark'>
-                  <td className={`flex items-center py-5 px-4 ${i18n.language === "fa" ? "pr-9" : "pl-9"} xl:pl-11`}>
+                  <td className={`py-5 px-4 ${i18n.language === "fa" ? "pr-9" : "pl-9"} xl:pl-11`}>
+                    <p className="text-black dark:text-white">
+                      {convertNumberFormat(product.id, i18n.language)}
+
+                    </p>
+                  </td>
+                  <td className="py-5 px-4 flex items-center">
                     <div className={`flex-shrink-0 w-[68px] h-[48px] ${i18n.language === "fa" ? "ml-3" : "mr-3"}`}>
                       <img src={JSON.parse(product.image)[0]} alt="Brand" className='w-full h-full rounded-md object-cover' />
                     </div>
@@ -176,12 +205,23 @@ const TableTwo = () => {
                   </td> */}
                   <td className="py-5 px-4">
                     <p className="text-black dark:text-white">
-                      %{product.discount}
+                      %{convertNumberFormat(product.discount, i18n.language)}
                     </p>
                   </td>
                   <td className="py-5 px-4">
                     <p className="text-success">
-                      ${product.total_price}
+                      ${convertNumberFormat(product.total_price, i18n.language)}
+
+                    </p>
+                  </td>
+                  <td className="py-5 px-4">
+                    <p className={product.number === 0 ? "text-danger" : "text-black dark:text-white"}>
+                      {
+                        product.number === 0 ? t("unavailable") :
+                          convertNumberFormat(product.number, i18n.language)
+
+                      }
+
                     </p>
                   </td>
                   <td className="py-5 px-4">
@@ -193,7 +233,7 @@ const TableTwo = () => {
                           : 'bg-warning text-warning'
                         }`}
                     >
-                      {product.status}
+                      {t(product.status)}
                     </p>
                   </td>
                   <td className="py-5 px-4">
@@ -260,12 +300,14 @@ const TableTwo = () => {
         </div>
         {response?.data?.length === 0 && (
 
-          <p className="text-title-md2 font-semibold text-black dark:text-white my-20 mx-auto w-fit">No Data !</p>
+          <p className="text-title-md2 font-semibold text-black dark:text-white my-20 mx-auto w-fit">{t("No Data !")}</p>
 
         )}
         <div className="flex flex-col md:flex-row justify-between items-center m-3">
           <div className="flex overflow-x-auto sm:justify-start flowbite mb-5 md:mb-0 overflow-auto max-w-full">
-            {response?.data?.length == 0 || response?.pageCount != 1 && <Pagination currentPage={currentPage} totalPages={response?.pageCount || 0} onPageChange={onPageChange} showIcons />}
+            {response?.data?.length == 0 || response?.pageCount != 1 && <Pagination dir='ltr' currentPage={currentPage} totalPages={response?.pageCount || 0} onPageChange={onPageChange} showIcons
+              previousLabel=""
+              nextLabel="" />}
           </div>
           {!response?.data?.length == 0 && <div className="relative z-20 bg-transparent dark:bg-form-input">
             <select
@@ -294,25 +336,6 @@ const TableTwo = () => {
               </option>
             </select>
 
-            <span className={`absolute top-1/2 ${i18n.language === "fa" ? "left-4" : "right-4"} z-30 -translate-y-1/2`}>
-              <svg
-                className="fill-current"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <g opacity="0.8">
-                  <path
-                    fillRule="evenodd"
-                    clipRule="evenodd"
-                    d="M5.29289 8.29289C5.68342 7.90237 6.31658 7.90237 6.70711 8.29289L12 13.5858L17.2929 8.29289C17.6834 7.90237 18.3166 7.90237 18.7071 8.29289C19.0976 8.68342 19.0976 9.31658 18.7071 9.70711L12.7071 15.7071C12.3166 16.0976 11.6834 16.0976 11.2929 15.7071L5.29289 9.70711C4.90237 9.31658 4.90237 8.68342 5.29289 8.29289Z"
-                    fill=""
-                  ></path>
-                </g>
-              </svg>
-            </span>
           </div>}
         </div>
       </div>

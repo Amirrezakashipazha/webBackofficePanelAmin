@@ -85,7 +85,7 @@ const Create = () => {
       console.log(key, value);
     }
     try {
-      await post('http://localhost:3000/api/users', formData, {
+      await post(`${import.meta.env.VITE_API_URL}users`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

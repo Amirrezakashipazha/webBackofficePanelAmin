@@ -80,7 +80,7 @@ const EditCategory = () => {
             console.log(key, value);
         }
         try {
-            await patch(`http://localhost:3000/api/category/${id}`, formData, {
+            await patch(`${import.meta.env.VITE_API_URL}category/${id}`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -94,7 +94,7 @@ const EditCategory = () => {
 
     useEffect(() => {
         if (id) {
-            get(`http://localhost:3000/api/category/${id}`)
+            get(`${import.meta.env.VITE_API_URL}category/${id}`)
         }
     }, [id]);
 

@@ -7,13 +7,14 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { v4 as uuidv4 } from "uuid";
 import SelectImage from "../../components/Forms/selectImage";
 import { useTranslation } from "react-i18next";
+import NotFound from "../404";
 
 const EditProduct = () => {
     const { t, i18n } = useTranslation();
     const { get: getCategory, response: responseCategory, error: errorCategory, loading: loadingCategory } = useAxios();
 
     useEffect(() => {
-        getCategory('http://localhost:3000/api/category?limit=1000')
+        getCategory(`${import.meta.env.VITE_API_URL}category?limit=1000`)
     }, [])
 
     const [images2, setImages2] = useState();
@@ -59,7 +60,8 @@ const EditProduct = () => {
         totalPrice: null,
         description: "",
         status: "deactive",
-        images: ""
+        images: "",
+        number:0
     });
     const HandleChangeSelect = (e) => {
         setSelectedOption(e.target.value);
@@ -132,7 +134,7 @@ const EditProduct = () => {
             console.log(key, value);
         }
         try {
-            await patch(`http://localhost:3000/api/products/${id}`, formData, {
+            await patch(`${import.meta.env.VITE_API_URL}products/${id}`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -146,12 +148,12 @@ const EditProduct = () => {
 
     useEffect(() => {
         if (id) {
-            get(`http://localhost:3000/api/products/${id}`)
+            get(`${import.meta.env.VITE_API_URL}products/${id}`)
         }
     }, [id]);
 
     useEffect(() => {
-        // console.log(responseSingleProduct);
+
         if (responseSingleProduct && responseSingleProduct[0]) {
 
             setState({
@@ -162,6 +164,7 @@ const EditProduct = () => {
                 totalPrice: responseSingleProduct[0]?.total_price || 0,
                 description: responseSingleProduct[0]?.description || "",
                 status: responseSingleProduct[0]?.status || "",
+                number: responseSingleProduct[0]?.number || "",
                 images: JSON.parse(responseSingleProduct[0]?.image) || [],
             });
             setSelectedOptionCategory(responseSingleProduct[0]?.category);
@@ -169,16 +172,12 @@ const EditProduct = () => {
 
         }
     }, [responseSingleProduct]);
-    useEffect(() => {
-        console.log(state); // Logs the state when it changes
-    }, [state]);
+
 
     const [images, setImages] = useState([
         { id: uuidv4(), src: "" },
     ]);
-    useEffect(() => {
-        console.log(images); // Logs the state when it changes
-    }, [images]);
+
     useEffect(() => {
         if (state.images) {
             try {
@@ -225,6 +224,10 @@ const EditProduct = () => {
             ...prevState,
             status: e.target.value,
         }));
+    }
+
+    if (responseSingleProduct?.length === 0) {
+        return <NotFound />
     }
 
     if (loading) return <p>Loading...</p>;
@@ -442,7 +445,29 @@ const EditProduct = () => {
                                             </div>
                                         </div>
                                     </div>
+                                    <div className="mb-4.5 flex flex-col gap-6 xl:flex-row">
 
+                                        <div className="w-full xl:w-1/2">
+                                            <div className="mb-4.5">
+                                                <label className="mb-2.5 block text-black dark:text-white">
+                                                    {t("Number Of Product")} <span className="text-meta-1">*</span>
+                                                </label>
+                                                <input
+                                                    name="number"
+                                                    value={state.number}
+                                                    onChange={handleChange}
+                                                    type="number"
+                                                    placeholder={t("Enter Number of Product")}
+                                                    className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                                                />
+
+                                            </div>
+                                        </div>
+
+                                        <div className="w-full xl:w-1/2">
+
+                                        </div>
+                                    </div>
                                     <div className="mb-4.5 flex flex-col gap-6 xl:flex-row">
                                         <div className="w-full">
                                             <label className="mb-2.5 block text-black dark:text-white">

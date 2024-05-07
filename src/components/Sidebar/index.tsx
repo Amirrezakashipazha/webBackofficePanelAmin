@@ -3,8 +3,8 @@ import { NavLink, useLocation } from 'react-router-dom';
 import SidebarLinkGroup from './SidebarLinkGroup';
 import Logo from '../../images/logo/logo.svg';
 import FullScreenButton from '../../pages/UiElements/FullScreenBtn';
-import { useResponse } from '../../ResponseContext';
 import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -14,7 +14,8 @@ interface SidebarProps {
 const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   const { t, i18n } = useTranslation();
 
-  const { response, setResponse } = useResponse();
+  const panel = useSelector((state) => state.panel);
+
 
   const location = useLocation();
   const { pathname } = location;
@@ -80,7 +81,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
       {/* <!-- SIDEBAR HEADER --> */}
       <div className="flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5">
         <NavLink to="/">
-          <img src={response?.setting?.logo || Logo} alt="Logo" className='' />
+          <img src={panel?.setting?.logo || Logo} alt="Logo" className='' />
         </NavLink>
 
         <button
@@ -183,7 +184,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 </NavLink>
               </li>
 
-              {response.user?.role === "super-admin" && <li>
+              {panel.user?.role === "super-admin" && <li>
                 <NavLink
                   to="/admins"
                   className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-black dark:text-white duration-300 ease-in-out hover:bg-stroke dark:hover:bg-meta-4 ${pathname.includes('admins') && 'bg-stroke dark:bg-meta-4'
@@ -262,7 +263,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   {t('Sale')}
                 </NavLink>
               </li>
-              {response.user?.role === "super-admin" && <li>
+              {panel.user?.role === "super-admin" && <li>
                 <NavLink
                   to="/settings"
                   className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-black dark:text-white duration-300 ease-in-out hover:bg-stroke dark:hover:bg-meta-4 ${pathname.includes('settings') &&

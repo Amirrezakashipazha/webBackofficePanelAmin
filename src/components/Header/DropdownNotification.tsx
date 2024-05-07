@@ -1,32 +1,42 @@
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import io from 'socket.io-client';
+import { clearNotificatin, setNotificatin, setOrders } from '../../store';
+import { useDispatch } from 'react-redux';
+import useAxios from '../../hooks/useAxios';
 
 const DropdownNotification = () => {
+  const { t, i18n } = useTranslation();
 
+  const panel = useSelector((state) => state.panel);
+  const Dispatch = useDispatch();
 
-//   const [notifications, setNotifications] = useState([]);
+  //   const [notifications, setNotifications] = useState([]);
 
-//   useEffect(() => {
-//     // Connect to WebSocket server
-// // Frontend connection request example
-// const socket = io('http://localhost:3000', { withCredentials: true });
+  //   useEffect(() => {
+  //     // Connect to WebSocket server
+  // // Frontend connection request example
+  // const socket = io('http://localhost:3000', { withCredentials: true });
 
-//     // Listen for 'notification' event
-//     socket.on('notification', (notification) => {
-//       setNotifications((prevNotifications) => [...prevNotifications, notification]);
-//     });
+  //     // Listen for 'notification' event
+  //     socket.on('notification', (notification) => {
+  //       setNotifications((prevNotifications) => [...prevNotifications, notification]);
+  //     });
 
-//     // Clean up WebSocket connection on component unmount
-//     return () => {
-//       socket.disconnect();
-//     };
-//   }, []);
+  //     // Clean up WebSocket connection on component unmount
+  //     return () => {
+  //       socket.disconnect();
+  //     };
+  //   }, []);
 
+  const { get, response, error, loading: loadingIsadmin } = useAxios();
 
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [notifying, setNotifying] = useState(true);
+  // const [state, setState] = useState();
 
   const trigger = useRef<any>(null);
   const dropdown = useRef<any>(null);
@@ -56,6 +66,24 @@ const DropdownNotification = () => {
     return () => document.removeEventListener('keydown', keyHandler);
   });
 
+
+
+
+  useEffect(() => {
+    get(`${import.meta.env.VITE_API_URL}order`);
+  }, [])
+
+  const HandleClearNotification = () => {
+    Dispatch(setOrders(response?.data))
+    Dispatch(clearNotificatin())
+    console.log(panel?.notification);
+    setDropdownOpen(false)
+  }
+
+  // useEffect(() => {
+  //   setState(panel?.notification)
+  // }, [response,HandleClearNotification])
+  
   return (
     <li className="relative">
       <Link
@@ -67,13 +95,12 @@ const DropdownNotification = () => {
         to="#"
         className="relative flex h-8.5 w-8.5 items-center justify-center rounded-full border-[0.5px] border-stroke bg-gray hover:text-primary dark:border-strokedark dark:bg-meta-4 dark:text-white"
       >
-        <span
-          className={`absolute -top-0.5 right-0 z-1 h-2 w-2 rounded-full bg-meta-1 ${
-            notifying === false ? 'hidden' : 'inline'
-          }`}
+        {panel?.notification?.length >= 1 && <span
+          className={`absolute -top-0.5 right-0 z-1 h-2 w-2 rounded-full bg-meta-1 ${notifying === false ? 'hidden' : 'inline'
+            }`}
         >
           <span className="absolute -z-1 inline-flex h-full w-full animate-ping rounded-full bg-meta-1 opacity-75"></span>
-        </span>
+        </span>}
 
         <svg
           className="fill-current duration-300 ease-in-out"
@@ -94,79 +121,50 @@ const DropdownNotification = () => {
         ref={dropdown}
         onFocus={() => setDropdownOpen(true)}
         onBlur={() => setDropdownOpen(false)}
-        className={`absolute -right-27 mt-2.5 flex h-90 w-75 flex-col rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark sm:right-0 sm:w-80 ${
-          dropdownOpen === true ? 'block' : 'hidden'
-        }`}
+        className={`absolute -right-27 min-w-[300px] mt-2.5 flex h-[326px] flex-col rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark sm:right-0  ${dropdownOpen === true ? 'block' : 'hidden'
+          }`}
       >
         <div className="px-4.5 py-3">
           <h5 className="text-sm font-medium text-bodydark2">Notification</h5>
         </div>
 
-        <ul className="flex h-auto flex-col overflow-y-auto">
-          <li>
-            <Link
-              className="flex flex-col gap-2.5 border-t border-stroke px-4.5 py-3 hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4"
-              to="#"
-            >
-              <p className="text-sm">
-                <span className="text-black dark:text-white">
-                  Edit your information in a swipe
-                </span>{' '}
-                Sint occaecat cupidatat non proident, sunt in culpa qui officia
-                deserunt mollit anim.
-              </p>
+        <ul className="flex flex-col overflow-y-auto h-[236px]">
+          {panel?.notification?.map((notif,index) =>
+            <li key={index}>
+              <Link
+                className="flex flex-col gap-2.5 border-t border-stroke px-4.5 py-3 hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4"
+                to="#"
+              >
+                <div className="text-sm">
+                  <span className="text-black dark:text-white">
+                    {t("New Order")}
+                  </span>
+                  <div className="flex items-center justify-center">
+                    <div className='flex items-center w-full'>
+                      <img src={notif.user.avatar} className='min-w-[48px] h-[48px] rounded-full object-cover' />
+                      <p className='px-2'>
+                        {notif.user.name}
+                      </p>
+                    </div>
 
-              <p className="text-xs">12 May, 2025</p>
-            </Link>
-          </li>
-          <li>
-            <Link
-              className="flex flex-col gap-2.5 border-t border-stroke px-4.5 py-3 hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4"
-              to="#"
-            >
-              <p className="text-sm">
-                <span className="text-black dark:text-white">
-                  It is a long established fact
-                </span>{' '}
-                that a reader will be distracted by the readable.
-              </p>
+                    <p className='whitespace-nowrap px-2 w-full'>just ordered an</p>
+                    <div className='flex items-center w-full'>
+                      <img src={JSON.parse(notif.product.image)[0]} className='min-w-[48px] object-cover h-[48px] rounded-md' />
+                      <p className='px-2'>
+                        {notif.product.name}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <p className="text-xs">{new Date(notif.created_at).toLocaleString()}</p>
+              </Link>
+            </li>
+          )}
 
-              <p className="text-xs">24 Feb, 2025</p>
-            </Link>
-          </li>
-          <li>
-            <Link
-              className="flex flex-col gap-2.5 border-t border-stroke px-4.5 py-3 hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4"
-              to="#"
-            >
-              <p className="text-sm">
-                <span className="text-black dark:text-white">
-                  There are many variations
-                </span>{' '}
-                of passages of Lorem Ipsum available, but the majority have
-                suffered
-              </p>
-
-              <p className="text-xs">04 Jan, 2025</p>
-            </Link>
-          </li>
-          <li>
-            <Link
-              className="flex flex-col gap-2.5 border-t border-stroke px-4.5 py-3 hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4"
-              to="#"
-            >
-              <p className="text-sm">
-                <span className="text-black dark:text-white">
-                  There are many variations
-                </span>{' '}
-                of passages of Lorem Ipsum available, but the majority have
-                suffered
-              </p>
-
-              <p className="text-xs">01 Dec, 2024</p>
-            </Link>
-          </li>
         </ul>
+        <div onClick={HandleClearNotification} className="py-3 absolute bottom-0 left-0 flex items-center bg-white dark:bg-boxdark justify-center w-full border-t border-stroke hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4 cursor-pointer">
+          <h5 className="text-sm font-medium text-bodydark2 text-center">Clear</h5>
+        </div>
       </div>
     </li>
   );

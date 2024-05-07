@@ -3,7 +3,7 @@ interface BreadcrumbProps {
   pageName?: string ;
   parentPageName?: string ;
   parentPageUrl?: string ;
-  location:boolean;
+  location?:boolean;
 }
 const Breadcrumb = ({ pageName, parentPageName ,parentPageUrl,location}: BreadcrumbProps) => {
   return (

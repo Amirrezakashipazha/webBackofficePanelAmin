@@ -286,3 +286,14 @@ body,body>#root,body>#root>div{
   font-family: sans-serif !important;
 } */
 
+/* .flowbite nav ul li:first-child button,
+.flowbite nav ul li:last-child button
+  {
+    padding-top: 10px;
+    padding-bottom: 10px;
+} */
+
+html[lang="fa"] [id^=":r"] svg{
+  margin-left: 0;
+  margin-right: 8px;
+}

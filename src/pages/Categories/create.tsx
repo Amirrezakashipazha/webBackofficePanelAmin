@@ -85,7 +85,7 @@ const CreateCategory = () => {
             console.log(key, value);
         }
         try {
-            await post('http://localhost:3000/api/category', formData, {
+            await post(`${import.meta.env.VITE_API_URL}category`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },

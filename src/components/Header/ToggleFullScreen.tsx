@@ -1,4 +1,3 @@
-import React from 'react'
 import { useState } from 'react';
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
@@ -41,7 +40,7 @@ const ToggleFullScreen = () => {
     <svg 
     className='fill-current duration-300 ease-in-out text-[rgb(100, 116, 139)] dark:text-white hover:text-[rgb(239, 244, 251)]'
     xmlns="http://www.w3.org/2000/svg" width="14px" height="14px" viewBox="0 0 14 14" version="1.1">
-    <g id="Icons" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <g id="Icons" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
         <g id="Outlined" transform="translate(-139.000000, -3481.000000)">
             <g id="Navigation" transform="translate(100.000000, 3378.000000)">
                 <g id="Outlined-/-Navigation-/-fullscreen_exit" transform="translate(34.000000, 98.000000)">
@@ -61,7 +60,7 @@ const ToggleFullScreen = () => {
       width="14px"
       height="14px"
       viewBox="0 0 14 14">
-      <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+      <g stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
         <g transform="translate(-173.000000, -3481.000000)">
           <g transform="translate(100.000000, 3378.000000)">
             <g transform="translate(68.000000, 98.000000)">

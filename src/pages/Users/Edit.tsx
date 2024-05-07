@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import useAxios from "../../hooks/useAxios";
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from "react-i18next";
+import NotFound from "../404";
 
 const Edit = () => {
     const { t ,i18n} = useTranslation();
@@ -83,7 +84,7 @@ const Edit = () => {
             console.log(key, value);
         }
         try {
-            await patch(`http://localhost:3000/api/users/${id}`, formData, {
+            await patch(`${import.meta.env.VITE_API_URL}users/${id}`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -97,7 +98,7 @@ const Edit = () => {
 
     useEffect(() => {
         if (id) {
-            get(`http://localhost:3000/api/users/${id}`)
+            get(`${import.meta.env.VITE_API_URL}users/${id}`)
         }
     }, [id]);
 
@@ -118,6 +119,10 @@ const Edit = () => {
             console.log(state);
         }
     }, [responseSingleUser]);
+
+    if(responseSingleUser?.length===0){
+        return <NotFound/>
+    }
 
     if (loading) return <p>Loading...</p>;
     if (error) return <p>Error: {error}</p>;
