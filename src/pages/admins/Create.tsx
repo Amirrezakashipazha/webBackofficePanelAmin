@@ -1,19 +1,22 @@
 import Breadcrumb from "../../components/Breadcrumbs/Breadcrumb";
 import DefaultLayout from "../../layout/DefaultLayout";
-import SelectGroupOne from '../../components/Forms/SelectGroup/SelectGroupOne';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import useAxios from "../../hooks/useAxios";
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from "react-i18next";
-// import ImageZoom from "react-image-zooom";
+import Input from "../../components/Forms/Input";
+import SelectStatus from "../../components/Forms/SelectStatus";
+import { useForm } from "react-hook-form";
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
 
 const CreateAdmins = () => {
 
-  const { t ,i18n} = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const navigate = useNavigate();
 
-  const [selectedAvatar, setSelectedAvatar] = useState<string>('');
+  const [selectedAvatar, setSelectedAvatar] = useState<any>();
   const [selectedOption, setSelectedOption] = useState<string>('active');
   const [isOptionSelected, setIsOptionSelected] = useState<boolean>(false);
 
@@ -21,36 +24,67 @@ const CreateAdmins = () => {
     setIsOptionSelected(true);
   };
 
-
-  const [state, setState] = useState({
+  const [state, setState] = useState<{
+    username: string;
+    password: string;
+    status: string;
+    avatar: File | null; 
+    errorMessage: {
+      username: boolean;
+      password: boolean;
+    };
+  }>({
     username: "",
-    email: "",
     password: "",
     status: "active",
-    avatar: ""
+    avatar: null,
+    errorMessage: {
+      username: false,
+      password: false,
+    },
   });
-  const HandleChangeSelect = (e) => {
+
+
+  const schema = yup.object().shape({
+    username: yup.string().required(t("Field Is Required")).min(3, t("Username should be at least 3 character")).max(20,t("username cant be more than 20 charachter")),
+    password: yup.string().required(t("Field Is Required")).min(6, t("Password should be at least 6 character")).
+    matches(/(?=.*[A-Z]{1,})/g,t("Password must have at least one uppercase characters"))
+    .matches(/(?=.*[a-z])/g, t("Password must contain at least one lowercase character"))
+    .matches(/(?=.*\W)/g, t("Password must contain a special character"))
+    .matches(/(?=.*\d)/g, t("Password must contain at least one number")),
+  });
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  }: {
+    register: any,
+    handleSubmit: any,
+    formState: { errors: any },
+  } = useForm({ resolver: yupResolver(schema) });
+
+  const HandleChangeSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedOption(e.target.value);
+    console.log(e.target);
     changeTextColor();
-
-
     setState((prevState) => ({
       ...prevState,
       status: e.target.value,
     }));
   }
-  const HandleChangeAvatar = (e) => {
-    setSelectedAvatar(e.target.value);
-    // changeTextColor();
 
-
-    setState((prevState) => ({
-      ...prevState,
-      avatar: e.target.value,
-    }));
+  const HandleChangeAvatar = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setSelectedAvatar(file); // Store the File object
+      setState((prevState) => ({
+        ...prevState,
+        avatar: file,
+      }));
+    }
   }
-  const [Select, setSelect] = useState();
-  // const [Select, setSelect] = useState();
+
 
   const { post, response, error, loading } = useAxios();
 
@@ -58,12 +92,14 @@ const CreateAdmins = () => {
     console.log(state);
   }, [state]);
 
-  const handleChange = (event) => {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
-
     setState((prevState) => ({
       ...prevState,
       [name]: value,
+      errorMessage: {
+        ...prevState.errorMessage,
+      }
     }));
   };
 
@@ -74,16 +110,16 @@ const CreateAdmins = () => {
     }
   }, [response, navigate]);
 
-  const form = useRef(null)
 
-  const HandleCreateAdmin = async (event) => {
-    event.preventDefault();
-    // console.log(event.target);
-    var formData = new FormData(event.target);
-    formData.append("status",selectedOption)
-    for (var [key, value] of formData.entries()) {
-      console.log(key, value);
-    }
+  const HandleCreateAdmin = async (formData: {
+    username: string;
+    password: string;
+    avatar: FileList;
+    status: string;
+  }) => {
+
+    formData.status = selectedOption;
+    formData.avatar = selectedAvatar;
     try {
       await post(`${import.meta.env.VITE_API_URL}admins`, formData, {
         headers: {
@@ -103,7 +139,7 @@ const CreateAdmins = () => {
   return (
     <DefaultLayout>
       <Breadcrumb pageName={t("Create")} parentPageName={t("Admins")} parentPageUrl={"admins"} location={true} />
-    
+
 
       <div className="flex flex-col gap-10">
 
@@ -113,83 +149,59 @@ const CreateAdmins = () => {
 
             <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
 
-              <form action="#" id="form" ref={form} encType="multipart/form-data" onSubmit={HandleCreateAdmin}>
+              <form id="form" method="POST" encType="multipart/form-data" onSubmit={handleSubmit(HandleCreateAdmin)}>
                 <div className="p-6.5">
                   <div className="mb-4.5 flex flex-col gap-6 xl:flex-row">
                     <div className="w-full xl:w-1/2">
-                      <label className="mb-2.5 block text-black dark:text-white">
-                        {t('Username')} <span className="text-meta-1">*</span>
-                      </label>
-                      <input
-                        name="username"
-                        value={state.username}
-                        onChange={handleChange}
-                        title="User name"
-                        type="text"
-                        placeholder={t("Enter Your name")}
-                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      <Input errorMassge={(errors?.username?.message) ? errors.username.message : ""}
+                        register={register("username")}
+                        isRequired={true}
+                        isValid={errors?.username ? false : true}
+                        name='username'
+                        label={t("Username")}
+                        value={state.username} onChange={handleChange}
+                        placeholder={t("Enter Username")}
                       />
+
                     </div>
 
                     <div className="w-full xl:w-1/2">
-                      <label className="mb-2.5 block text-black dark:text-white">
-                        {t('Password')} <span className="text-meta-1">*</span>
-                      </label>
-                      <input
-                        name="password" value={state.password}
-                        onChange={handleChange}
+                      <Input errorMassge={(errors?.password?.message) ? errors?.password?.message : ""}
+                        register={register("password")}
+                        isValid={errors?.password ? false : true}
+                        isRequired={true}
                         type="password"
-                        placeholder={t("Enter Your password")}
-                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                      />
+                        name='password' label={t("Password")}
+                        value={state.password} onChange={handleChange}
+                        placeholder={t("Enter Password")} />
+
                     </div>
                   </div>
 
                   <div className="mb-4.5 flex flex-col gap-6 xl:flex-row">
                     <div className="w-full xl:w-1/2">
-                    <label className="mb-3 block text-black dark:text-white">
+                      <label className="mb-3 block text-black dark:text-white">
                         {t('Attach file')}
                       </label>
                       <input
                         title="file"
                         type="file"
-                        value={selectedAvatar}
+                        // value={selectedAvatar}
                         name="avatar"
                         onChange={HandleChangeAvatar}
-                        className={`w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent outline-none transition ${i18n.language==="fa"?"file:ml-5":"file:mr-5"} file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary`}
+                        className={`w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent outline-none transition ${i18n.language === "fa" ? "file:ml-5" : "file:mr-5"} file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary`}
                       />
                     </div>
 
                     <div className="w-full xl:w-1/2">
 
                       <div className="mb-4.5">
-                        <label className="mb-2.5 block text-black dark:text-white">
-                          {t('Status')}
-                        </label>
+                        <SelectStatus label={t('Status')} value={selectedOption} onChange={HandleChangeSelect} isOptionSelected={isOptionSelected} />
 
-                        <div className="relative z-20 bg-transparent dark:bg-form-input">
-                          <select
-                            value={selectedOption}
-                            onChange={HandleChangeSelect}
-                            className={`relative z-20 w-full appearance-none rounded border border-stroke bg-transparent py-3 px-5 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary ${isOptionSelected ? 'text-black dark:text-white' : ''
-                              }`}
-                          >
-
-                            <option value="active" className="text-body dark:text-bodydark">
-                              {t('active')}
-                            </option>
-                            <option value="inactive" className="text-body dark:text-bodydark">
-                              {t('inactive')}
-                            </option>
-
-                          </select>
-
-                         
-                        </div>
                       </div>
                     </div>
                   </div>
-                
+
 
                   <button type="submit" className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90">
                     {t('Submit')}

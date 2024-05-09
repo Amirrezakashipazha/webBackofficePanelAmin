@@ -1,5 +1,5 @@
 
-const Input = ({ label, value, onChange, placeholder, icon, type = "text", name, notValid = false ,errorMassge}: { label: string, value?: string, onChange: (e: any) => void, placeholder?: string, icon?: React.ReactElement, type?: string, name: string, notValid?: boolean ,errorMassge?:|string}) => {
+const InputAuth = ({ label, value, onChange, placeholder, icon, type = "text", name, notValid = false ,errorMassge}: { label: string, value?: string, onChange: (e: any) => void, placeholder?: string, icon?: React.ReactElement, type?: string, name: string, notValid?: boolean ,errorMassge?:|string}) => {
     return (
         <div className="mb-4">
             <label className="mb-2.5 block font-medium text-black dark:text-white">
@@ -27,4 +27,4 @@ const Input = ({ label, value, onChange, placeholder, icon, type = "text", name,
     )
 }
 
-export default Input
+export default InputAuth

@@ -244,6 +244,14 @@ body.dark .flowbite nav ul li[aria-current='page'] button {
   background: #1c2434;
 }
 
+html[lang="fa"] .flowbite nav{
+  overflow: hidden;
+}
+
+html[lang="fa"] .flowbite nav ul li:first-child,html[lang="fa"] .flowbite nav ul li:last-child  {
+  transform: rotate(180deg);
+}
+
 * {
   transition:
     color,

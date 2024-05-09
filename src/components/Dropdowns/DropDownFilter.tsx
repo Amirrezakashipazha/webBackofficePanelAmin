@@ -27,8 +27,8 @@ const DropDownFilter = ({ items, selectedItem, setSelectedItem }: { items: strin
         <div className={`absolute ${i18n.language === "fa" ? "left-0" : "right-0"} top-[50%] transform translate-y-[-50%] dark:bg-black h-full flex items-center px-2`}>
 
             <Dropdown label={i18n.language === "en" ? selectedItem : variables[selectedItem]} inline>
-                {items.map(item =>
-                    <Dropdown.Item onClick={() => setSelectedItem(item)} className="whitespace-nowrap">  {i18n.language === "en" ? item : variables[item]}</Dropdown.Item>
+                {items.map((item,index) =>
+                    <Dropdown.Item key={index} onClick={() => setSelectedItem(item)} className="whitespace-nowrap">  {i18n.language === "en" ? item : variables[item]}</Dropdown.Item>
                 )}
             </Dropdown>
         </div>

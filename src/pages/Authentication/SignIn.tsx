@@ -3,14 +3,13 @@ import useAxios from '../../hooks/useAxios';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import useColorMode from '../../hooks/useColorMode';
-import Loading from '../../components/Loading';
 import { toast } from 'react-hot-toast';
-import Input from '../../components/Input';
 import Password from '../../components/Icons/Password';
 import User from '../../components/Icons/User';
-import { useForm } from "react-hook-form";
-import * as yup from "yup";
-import { yupResolver } from "@hookform/resolvers/yup";
+// import { useForm } from "react-hook-form";
+// import * as yup from "yup";
+// import { yupResolver } from "@hookform/resolvers/yup";
+import InputAuth from '../../components/Forms/InputAuth';
 
 const SignIn: React.FC = () => {
 
@@ -74,6 +73,9 @@ const SignIn: React.FC = () => {
   useEffect(() => {
     console.log(response);
     if (response && response['status'] === 200) {
+      toast.success(t("You Have Successfully Logged In"), {
+        duration: 2000,
+      })
       navigate('/');
     }
   }, [response])
@@ -81,7 +83,7 @@ const SignIn: React.FC = () => {
   useEffect(() => {
     console.log(error);
     if (error) {
-      toast.error(error.data.msg, {
+      toast.error(t(error.data.msg), {
         duration: 2000,
       })
     }
@@ -132,30 +134,28 @@ const SignIn: React.FC = () => {
 
             <form onSubmit={HandleSubmitLogin}>
 
-              <Input errorMassge={state.errorMessage.username ? t("Field Is Required") : ""}
+              <InputAuth errorMassge={state.errorMessage.username ? t("Field Is Required") : ""}
                 notValid={state.errorMessage.username} name='username' label={t("Username")}
                 value={state.username} onChange={HandleChangeUsername}
                 placeholder={t("Enter your Username")} icon={
                   <User />
                 } />
 
-              <Input errorMassge={state.errorMessage.password ? t("Field Is Required") : ""}
+              <InputAuth errorMassge={state.errorMessage.password ? t("Field Is Required") : ""}
                 notValid={state.errorMessage.password} type='password' name='password' label={t("Password")}
                 value={state.password} onChange={HandleChangePassword}
                 placeholder={t("Enter your Password")} icon={
                   <Password />
                 } />
 
-              <div className="mb-5 relative">
-                {loading ?
-                  <Loading />
-                  :
+              <div className="mb-5">
+                
                   <input
                     type="submit"
-                    value={t("Sign In")}
+                    value={loading?`${t("Loading")}...`:t("Sign In")}
                     className="w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 text-white transition hover:bg-opacity-90"
                   />
-                }
+                
               </div>
             </form>
           </div>

@@ -28,7 +28,7 @@ const EditAdmins = () => {
         status: "active",
         avatar: ""
     });
-    const HandleChangeSelect = (e) => {
+    const HandleChangeSelect = (e:React.ChangeEvent<HTMLSelectElement>) => {
         setSelectedOption(e.target.value);
         changeTextColor();
 
@@ -43,7 +43,7 @@ const EditAdmins = () => {
     const { patch, response, error, loading } = useAxios();
 
     const [selectedAvatar, setSelectedAvatar] = useState();
-    const HandleChangeAvatar = (e) => {
+    const HandleChangeAvatar = (e:React.ChangeEvent<HTMLInputElement>) => {
         setSelectedAvatar(e.target.files[0]);
     
 
@@ -54,7 +54,7 @@ const EditAdmins = () => {
         }));
     }
 
-    const handleChange = (event) => {
+    const handleChange = (event:React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = event.target;
 
         setState((prevState) => ({
@@ -72,7 +72,7 @@ const EditAdmins = () => {
     }, [response, navigate]);
 
 
-    const HandleEditAdmin = async (event) => {
+    const HandleEditAdmin = async (event:React.ChangeEvent<HTMLFormElement>) => {
         event.preventDefault();
         var formData = new FormData(event.target);
         formData.append("status", selectedOption)
@@ -214,6 +214,7 @@ const EditAdmins = () => {
 
                                                 <div className="relative z-20 bg-transparent dark:bg-form-input">
                                                     <select
+                                                    title="select status"
                                                         value={selectedOption}
                                                         onChange={HandleChangeSelect}
                                                         className={`relative z-20 w-full appearance-none rounded border border-stroke bg-transparent py-3 px-5 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary ${isOptionSelected ? 'text-black dark:text-white' : ''
