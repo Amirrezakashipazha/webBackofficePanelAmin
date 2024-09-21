@@ -39,7 +39,7 @@ import { setAdmins, setCategories, setNotificatin, setOrders, setProducts, setSa
 import NotFound from './pages/404';
 import Categories from './pages/Categories/categories';
 import CreateCategory from './pages/Categories/create';
-// import dotenv from 'dotenv';
+// import dotenv from 'dotenv'; 
 
 function App() { 
   const panel = useSelector((state) => state.panel);
