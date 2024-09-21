@@ -28,7 +28,7 @@ const CreateAdmins = () => {
     username: string;
     password: string;
     status: string;
-    avatar: File | null; 
+    avatar: File | null;
     errorMessage: {
       username: boolean;
       password: boolean;
@@ -46,12 +46,12 @@ const CreateAdmins = () => {
 
 
   const schema = yup.object().shape({
-    username: yup.string().required(t("Field Is Required")).min(3, t("Username should be at least 3 character")).max(20,t("username cant be more than 20 charachter")),
+    username: yup.string().required(t("Field Is Required")).min(3, t("Username should be at least 3 character")).max(20, t("username cant be more than 20 charachter")),
     password: yup.string().required(t("Field Is Required")).min(6, t("Password should be at least 6 character")).
-    matches(/(?=.*[A-Z]{1,})/g,t("Password must have at least one uppercase characters"))
-    .matches(/(?=.*[a-z])/g, t("Password must contain at least one lowercase character"))
-    .matches(/(?=.*\W)/g, t("Password must contain a special character"))
-    .matches(/(?=.*\d)/g, t("Password must contain at least one number")),
+      matches(/(?=.*[A-Z]{1,})/g, t("Password must have at least one uppercase characters"))
+      .matches(/(?=.*[a-z])/g, t("Password must contain at least one lowercase character"))
+      .matches(/(?=.*\W)/g, t("Password must contain a special character"))
+      .matches(/(?=.*\d)/g, t("Password must contain at least one number")),
   });
 
   const {
@@ -66,7 +66,6 @@ const CreateAdmins = () => {
 
   const HandleChangeSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedOption(e.target.value);
-    console.log(e.target);
     changeTextColor();
     setState((prevState) => ({
       ...prevState,

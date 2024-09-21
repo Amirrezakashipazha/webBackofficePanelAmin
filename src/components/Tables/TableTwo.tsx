@@ -305,7 +305,7 @@ const TableTwo = () => {
         )}
         <div className="flex flex-col md:flex-row justify-between items-center m-3">
           <div className="flex overflow-x-auto sm:justify-start flowbite mb-5 md:mb-0 overflow-auto max-w-full">
-            {response?.data?.length == 0 || response?.pageCount != 1 && <Pagination dir='ltr' currentPage={currentPage} totalPages={response?.pageCount || 0} onPageChange={onPageChange} showIcons
+            {response?.data?.length == 0 || response?.pageCount != 1 && <Pagination currentPage={currentPage} totalPages={response?.pageCount || 0} onPageChange={onPageChange} showIcons
               previousLabel=""
               nextLabel="" />}
           </div>

@@ -1,18 +1,38 @@
 import Breadcrumb from "../../components/Breadcrumbs/Breadcrumb";
 import DefaultLayout from "../../layout/DefaultLayout";
-import SelectGroupOne from '../../components/Forms/SelectGroup/SelectGroupOne';
 import { useEffect, useState } from 'react';
 import useAxios from "../../hooks/useAxios";
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from "react-i18next";
+import { useForm } from "react-hook-form";
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
+
+interface ApiResponseObject {
+    avatar?: string;
+    created_at: string;
+    id: number;
+    password?: string;
+    role: string;
+    status: string;
+    username: string;
+}
+
+interface UseAxiosReturn {
+    get: (url: string) => void;
+    response: ApiResponseObject[] | null;
+    error: any;
+    loading: boolean;
+}
+
 
 const EditAdmins = () => {
-    const { t ,i18n} = useTranslation();
+    const { t } = useTranslation();
 
     const { id } = useParams();
 
     const navigate = useNavigate();
-    const { get, response: responseSingleAdmin, error: errorSingleAdmin, loading: loadingSingleAdmin } = useAxios();
+    const { get, response: responseSingleAdmin, error: errorSingleAdmin, loading: loadingSingleAdmin } = useAxios() as UseAxiosReturn;;
 
     const [selectedOption, setSelectedOption] = useState<string>();
     const [isOptionSelected, setIsOptionSelected] = useState<boolean>(false);
@@ -22,13 +42,44 @@ const EditAdmins = () => {
     };
 
 
-    const [state, setState] = useState({
+    const [state, setState] = useState<{
+        username: string,
+        password: string,
+        status: string,
+        avatar: File | string;
+
+    }>({
         username: "",
         password: "",
         status: "active",
         avatar: ""
     });
-    const HandleChangeSelect = (e:React.ChangeEvent<HTMLSelectElement>) => {
+
+
+    const schema = yup.object().shape({
+        username: yup.string().required(t("Field Is Required")).min(3, t("Username should be at least 3 character")).max(20, t("Username cant be more than 20 charachter")),
+        password: yup.string().required(t("Field Is Required")).min(6, t("Password should be at least 6 character")).
+            matches(/(?=.*[A-Z]{1,})/g, t("Password must have at least one uppercase characters"))
+            .matches(/(?=.*[a-z])/g, t("Password must contain at least one lowercase character"))
+            .matches(/(?=.*\W)/g, t("Password must contain a special character"))
+            .matches(/(?=.*\d)/g, t("Password must contain at least one number")),
+    });
+
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    }: {
+        register: any,
+        handleSubmit: any,
+        formState: { errors: any },
+    } = useForm({ resolver: yupResolver(schema) });
+
+
+
+    const HandleChangeSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setIsChanged(true)
+console.log(state);
         setSelectedOption(e.target.value);
         changeTextColor();
 
@@ -38,25 +89,27 @@ const EditAdmins = () => {
             status: e.target.value,
         }));
     }
-    const [Select, setSelect] = useState();
 
     const { patch, response, error, loading } = useAxios();
 
-    const [selectedAvatar, setSelectedAvatar] = useState();
-    const HandleChangeAvatar = (e:React.ChangeEvent<HTMLInputElement>) => {
-        setSelectedAvatar(e.target.files[0]);
-    
+    const [selectedAvatar, setSelectedAvatar] = useState<File>();
+    const HandleChangeAvatar = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setIsChanged(true)
 
-        console.log(e.target.files[0]);
-        setState((prevState) => ({
-            ...prevState,
-            avatar: e.target.value,
-        }));
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            setSelectedAvatar(file);
+            setState((prevState) => ({
+                ...prevState,
+                avatar: file,
+            }));
+        }
     }
 
-    const handleChange = (event:React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setIsChanged(true)
+        console.log(errors);
         const { name, value } = event.target;
-
         setState((prevState) => ({
             ...prevState,
             [name]: value,
@@ -72,13 +125,22 @@ const EditAdmins = () => {
     }, [response, navigate]);
 
 
-    const HandleEditAdmin = async (event:React.ChangeEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        var formData = new FormData(event.target);
-        formData.append("status", selectedOption)
-        for (var [key, value] of formData.entries()) {
-            console.log(key, value);
-        }
+    const HandleEditAdmin = async (formData: {
+        username: string;
+        password: string;
+        avatar: FileList;
+        status: string;
+    }) => {
+        console.log('object');
+        // event.preventDefault();
+        // var formData = new FormData(event.target);
+        // formData.append("status", selectedOption || "sctive")
+        // for (var [key, value] of formData.entries()) {
+        //     console.log(key, value);
+        // }
+
+        formData.status = selectedOption || "sctive";
+
         try {
             await patch(`${import.meta.env.VITE_API_URL}admins/${id}`, formData, {
                 headers: {
@@ -101,6 +163,7 @@ const EditAdmins = () => {
     useEffect(() => {
 
         if (responseSingleAdmin) {
+            console.log(responseSingleAdmin);
             setState({
                 username: responseSingleAdmin[0].username || "",
                 status: responseSingleAdmin[0].status || "active",
@@ -108,13 +171,41 @@ const EditAdmins = () => {
                 avatar: responseSingleAdmin[0].avatar || "",
             });
             setSelectedOption(responseSingleAdmin[0]?.status);
-
-            console.log(state);
         }
     }, [responseSingleAdmin]);
 
-    if (loading) return <p>Loading...</p>;
-    if (error) return <p>Error: {error}</p>;
+    const [imageUrl, setImageUrl] = useState<string | undefined>(undefined);
+    useEffect(() => {
+        const updateImageUrl = (file: File): string | null => {
+            if (file) {
+                const url = URL.createObjectURL(file);
+                setImageUrl(url);
+                return url;
+            }
+            return null;
+        };
+        let currentUrl: string | null = null;
+        if (selectedAvatar) {
+            currentUrl = updateImageUrl(selectedAvatar);
+        } else if (state.avatar instanceof File) {
+            currentUrl = updateImageUrl(state.avatar);
+        } else {
+            setImageUrl(typeof state.avatar === 'string' ? state.avatar : undefined);
+        }
+        return () => {
+            if (currentUrl) {
+                URL.revokeObjectURL(currentUrl);
+            }
+        };
+    }, [selectedAvatar, state.avatar]);
+
+
+    const [isChanged, setIsChanged] = useState<boolean>(false);
+
+
+
+    if (loading || loadingSingleAdmin) return <p>Loading...</p>;
+    if (error || errorSingleAdmin) return <p>Error: {error}</p>;
 
     return (
         <DefaultLayout>
@@ -128,11 +219,15 @@ const EditAdmins = () => {
 
                         <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
 
-                            <form action="#" onSubmit={HandleEditAdmin}>
+                            <form action="#" onSubmit={handleSubmit(HandleEditAdmin)}>
                                 <div className="p-6.5">
                                     <div className="relative z-30 mx-auto mb-4.5  h-30 w-full max-w-30 rounded-full bg-white/20 p-1 backdrop-blur sm:h-44 sm:max-w-44 sm:p-3">
                                         <div className="relative drop-shadow-2 w-[152px] h-[152px]">
-                                            <img src={selectedAvatar && URL.createObjectURL(selectedAvatar) || state.avatar} alt="profile" className="w-full h-full rounded-full object-cover" />
+                                            <img
+                                                src={imageUrl}
+                                                alt="profile"
+                                                className="w-full h-full rounded-full object-cover"
+                                            />
                                             <label
                                                 htmlFor="profile"
                                                 className="absolute bottom-0 right-0 flex h-8.5 w-8.5 cursor-pointer items-center justify-center rounded-full bg-primary text-white hover:bg-opacity-90 sm:bottom-2 sm:right-2"
@@ -161,7 +256,6 @@ const EditAdmins = () => {
                                                 <input
                                                     title="file"
                                                     type="file"
-                                                    // value={selectedAvatar||0}
                                                     name="avatar"
                                                     onChange={HandleChangeAvatar}
                                                     id="profile"
@@ -176,15 +270,18 @@ const EditAdmins = () => {
                                                 {t("Username")} <span className="text-meta-1">*</span>
                                             </label>
                                             <input
-                                                name="username"
-                                                value={responseSingleAdmin?.username || state.username}
+                                                {...register("username")}
+                                                // name="username"
+                                                value={state.username}
                                                 onChange={handleChange}
                                                 title="User name"
                                                 type="text"
                                                 placeholder={t("Enter Your name")}
-
+                                                // defaultValue={state.username}
                                                 className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                                             />
+                                            <p className="text-danger text-sm mt-1">{errors?.username?.message}</p>
+
                                         </div>
 
                                         <div className="w-full xl:w-1/2">
@@ -192,18 +289,25 @@ const EditAdmins = () => {
                                                 {t("Password")} <span className="text-meta-1">*</span>
                                             </label>
                                             <input
-                                                name="password" value={state.password}
+                                                {...register("password")}
+
+                                                // name="password" 
+                                                value={state.password}
+                                                // defaultValue={state.password}
+
                                                 onChange={handleChange}
                                                 type="password"
                                                 placeholder={t("Enter Your password")}
 
                                                 className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                                             />
+                                            <p className="text-danger text-sm mt-1">{errors?.password?.message}</p>
+
                                         </div>
                                     </div>
 
                                     <div className="mb-4.5 flex flex-col gap-6 xl:flex-row">
-                                     
+
 
                                         <div className="w-full ">
 
@@ -214,7 +318,7 @@ const EditAdmins = () => {
 
                                                 <div className="relative z-20 bg-transparent dark:bg-form-input">
                                                     <select
-                                                    title="select status"
+                                                        title="select status"
                                                         value={selectedOption}
                                                         onChange={HandleChangeSelect}
                                                         className={`relative z-20 w-full appearance-none rounded border border-stroke bg-transparent py-3 px-5 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary ${isOptionSelected ? 'text-black dark:text-white' : ''
@@ -230,16 +334,28 @@ const EditAdmins = () => {
 
                                                     </select>
 
-                                                   
+
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
+                                    {isChanged && <div className={`flex justify-end gap-4.5 `}>
+                                        <button
+                                            className="flex justify-center rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white"
+                                            type="button"
+                                            onClick={() => navigate('/admins')}
+                                        >
+                                            {t("Cancel")}
+                                        </button>
+                                        <button
+                                            className="flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90"
+                                            type="submit"
+                                        >
+                                            {t("Save")}
+                                        </button>
+                                    </div>}
 
-                                    <button type="submit" className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90">
-                                        {t('Submit')}
-                                    </button>
                                 </div>
                             </form>
                         </div>

@@ -114,7 +114,7 @@
     "Password must contain at least one lowercase character": "رمز عبور باید حداقل دارای یک کاراکتر کوچک باشد",
     "Password must contain at least one number": "رمز عبور باید حداقل یک عدد داشته باشد",
     "You Have Successfully Logged In": "شما با موفقیت وارد شدید",
-    "": "",
+    "Username cant be more than 20 charachter": "نام کربری نمیتواند بیشتر از 20 حرف باشد",
     "": "",
     "": "",
     "": "",

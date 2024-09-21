@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 
-const SelectStatus = ({ label, value, onChange, isOptionSelected }: { label: string, value: string, onChange: (e: any) => void, isOptionSelected: boolean }) => {
+const SelectStatus = ({ label, value, onChange, isOptionSelected }: { label: string, value: string|undefined, onChange: (e: any) => void, isOptionSelected: boolean }) => {
     const { t } = useTranslation();
     return (
         <>
