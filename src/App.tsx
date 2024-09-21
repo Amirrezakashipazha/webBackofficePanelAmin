@@ -44,7 +44,7 @@ import CreateCategory from './pages/Categories/create';
 function App() { 
   const panel = useSelector((state) => state.panel);
   const Dispatch = useDispatch(); 
-
+ 
   const { t, i18n } = useTranslation();
 
   const navigate = useNavigate();
