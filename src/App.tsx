@@ -22,8 +22,6 @@ import Create from './pages/Users/Create';
 import Edit from './pages/Users/Edit';
 import CreateProduct from './pages/Products/create';
 import EditProduct from './pages/Products/edit';
-import Categories from './pages/Categories/Categories';
-import CreateCategory from './pages/Categories/Create';
 import EditCategory from './pages/Categories/edit';
 import Orders from './pages/Orders/orders';
 import Sale from './pages/Sale/sale';
@@ -39,6 +37,8 @@ import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from "react-redux";
 import { setAdmins, setCategories, setNotificatin, setOrders, setProducts, setSale, setSetting, setUser, setUsers } from './store';
 import NotFound from './pages/404';
+import Categories from './pages/Categories/categories';
+import CreateCategory from './pages/Categories/create';
 // import dotenv from 'dotenv';
 
 function App() {
