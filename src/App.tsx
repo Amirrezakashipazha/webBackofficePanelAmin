@@ -41,7 +41,7 @@ import Categories from './pages/Categories/categories';
 import CreateCategory from './pages/Categories/create';
 // import dotenv from 'dotenv';
 
-function App() {
+function App() { 
   const panel = useSelector((state) => state.panel);
   const Dispatch = useDispatch();
 
